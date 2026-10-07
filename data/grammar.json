@@ -1,0 +1,272 @@
+[
+  {
+    "id": "ending-eoseo",
+    "topic": "connective_ending",
+    "level": "A2-B1",
+    "title": "-아서/-어서: 순서와 이유",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=80220",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=80215"
+    ],
+    "content": "-아서/-어서는 앞 절과 뒤 절의 순서 또는 이유를 연결할 때 쓴다. 예: 밥을 먹어서 배가 불러요. 원인과 결과를 연결하는 경우에는 실제 문맥을 확인해야 한다.\n\n동사 어간의 모음에 따라 -아서와 -어서가 달라진다. 이 문서는 -었어서 같은 형태를 일률적으로 금지하는 규칙을 제시하지 않는다. 시제와 원인 관계를 함께 읽고 더 자연스러운 대안을 검토한다."
+  },
+  {
+    "id": "ending-neunde",
+    "topic": "connective_ending",
+    "level": "B1",
+    "title": "-는데: 뒤 절의 배경 제시",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=85135"
+    ],
+    "content": "-는데는 뒤에서 할 말의 배경이나 관련 상황을 먼저 제시하는 연결 어미로 쓰인다. 예: 약속이 있는데 조금 늦을 것 같아요.\n\n과거의 일이 뒤 절의 배경이면 -었는데가 자연스러운 문맥도 있다. -아서/-어서의 원인 연결과 기능이 다르므로 두 표현을 무조건 서로 바꾸지 않는다."
+  },
+  {
+    "id": "particle-topic",
+    "topic": "particle_selection",
+    "level": "A2-B1",
+    "title": "은/는: 화제와 대조",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=86111",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=85851"
+    ],
+    "content": "은/는은 문장의 화제를 제시하거나 다른 대상과 대조할 수 있다. 받침 있는 명사 뒤에는 은, 받침 없는 명사 뒤에는 는을 쓴다. 예: 저는 학생이에요.\n\n이/가와의 선택은 받침만의 문제가 아니다. 새 정보인지 이미 정한 화제인지, 대조를 강조하는지 등 담화 문맥을 확인한다."
+  },
+  {
+    "id": "particle-subject",
+    "topic": "particle_selection",
+    "level": "A2-B1",
+    "title": "이/가: 주어 표시",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=86289"
+    ],
+    "content": "이/가는 상태의 대상이나 동작의 주체를 나타낸다. 받침 있는 말 뒤에는 이, 받침 없는 말 뒤에는 가를 쓴다. 예: 꽃이 피었어요.\n\n은/는도 문맥에 따라 같은 명사 뒤에 올 수 있다. 새 정보나 화제의 흐름을 함께 고려해 판단한다."
+  },
+  {
+    "id": "particle-object",
+    "topic": "particle_selection",
+    "level": "A2-B1",
+    "title": "을/를: 목적어 표시",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=86355"
+    ],
+    "content": "을/를은 동작이 직접 영향을 주는 대상 등 목적어를 나타낸다. 받침 있는 명사 뒤에는 을, 받침 없는 명사 뒤에는 를을 쓴다. 예: 책을 읽었어요.\n\n어떤 서술어가 어떤 조사를 요구하는지는 문장 전체를 보고 판단한다. 모든 이/가를 을/를로 바꾸는 식의 규칙은 적용하지 않는다."
+  },
+  {
+    "id": "tense-past",
+    "topic": "tense",
+    "level": "A2-B1",
+    "title": "과거 시제와 시간 표현",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=66056"
+    ],
+    "content": "시제는 말하는 시점이나 기준 시점에 비해 사건이 언제 일어나는지를 나타낸다. -았-/-었-은 과거를 나타낼 수 있다. 예: 어제 영화를 봤어요.\n\n어제 같은 시간 부사가 있어도 인용, 역사적 현재, 반복 습관 등 특수 문맥이 가능하다. 사건의 실제 시간과 발화 의도를 먼저 확인한다."
+  },
+  {
+    "id": "honorific-existence",
+    "topic": "register",
+    "level": "B1",
+    "title": "있다와 계시다",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=68796"
+    ],
+    "content": "사람이 어느 장소에 머문다는 뜻의 있다에는 높임말 계시다가 있다. 예: 선생님이 교실에 계세요.\n\n높임 표현은 누구를 높이는지와 화자와 청자의 관계에 따라 달라진다. 있다를 항상 계시다로 고치지 않는다."
+  },
+  {
+    "id": "register-geureonde",
+    "topic": "register",
+    "level": "B1",
+    "title": "그런데와 근데의 문체",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=70717"
+    ],
+    "content": "그런데는 앞 이야기와 관련하여 방향을 바꾸거나 대조할 때 쓴다. 근데는 그런데의 준말로 대화에서 자연스럽게 쓰인다.\n\n친구와의 자유 발화에서 근데를 썼다는 이유만으로 오류라고 판단하지 않는다. 격식을 갖춘 글에서는 그런데가 더 어울릴 수 있다."
+  },
+  {
+    "id": "particle-place-e",
+    "topic": "particle_selection",
+    "level": "A1-B1",
+    "title": "에: 도착점과 존재 장소",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=%EC%97%90"
+    ],
+    "content": "에는 가는 곳이나 어떤 것이 있는 장소를 나타낼 수 있다. 예: 학교에 가요. 친구가 집에 있어요. 장소에서 실제로 하는 행동을 나타낼 때에는 에서와 구별해 문장을 확인한다."
+  },
+  {
+    "id": "particle-place-eseo",
+    "topic": "particle_selection",
+    "level": "A1-B1",
+    "title": "에서: 행동이 일어나는 장소",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=%EC%97%90%EC%84%9C"
+    ],
+    "content": "에서는 어떤 행동이 일어나는 장소를 나타낸다. 예: 도서관에서 공부해요. 학교에 가요와 학교에서 공부해요는 조사 선택의 이유가 다르다. 출발점을 나타내는 에서도 있으므로 문맥을 확인한다."
+  },
+  {
+    "id": "particle-recipient",
+    "topic": "particle_selection",
+    "level": "A2-B1",
+    "title": "에게·한테: 사람이나 동물에게 미치는 행동",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=69713",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=69714",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=69701"
+    ],
+    "content": "에게와 한테는 사람이나 동물에게 어떤 행동이 미치는 대상을 나타낼 수 있다. 예: 친구에게 편지를 보냈어요. 한테는 대화에서 자주 쓰이고, 높여야 하는 사람에게는 께가 어울릴 수 있다."
+  },
+  {
+    "id": "particle-direction",
+    "topic": "particle_selection",
+    "level": "A2-B1",
+    "title": "(으)로: 방향과 수단",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=%EC%9C%BC%EB%A1%9C"
+    ],
+    "content": "으로와 로는 이동 방향이나 수단을 나타낼 수 있다. 예: 집으로 가요. 버스로 학교에 갔어요. 받침이 없거나 ㄹ 받침인 말 뒤에는 로, 그 밖의 받침 뒤에는 으로가 쓰이는 경우를 살핀다."
+  },
+  {
+    "id": "particle-together",
+    "topic": "particle_selection",
+    "level": "A1-B1",
+    "title": "와·과·하고: 함께하는 대상",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=78628",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=78624",
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=78635"
+    ],
+    "content": "와와 과는 함께하거나 비교하는 대상을 나타낼 수 있다. 예: 친구와 영화를 봤어요. 받침 없는 명사 뒤에는 와, 받침 있는 명사 뒤에는 과를 쓴다. 하고는 대화에서 자연스럽게 쓸 수 있다."
+  },
+  {
+    "id": "ending-go",
+    "topic": "connective_ending",
+    "level": "A1-B1",
+    "title": "-고: 나열과 순서",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=78583"
+    ],
+    "content": "-고는 사실을 나열하거나 앞 행동 뒤에 다른 행동이 이어짐을 나타낼 수 있다. 예: 숙제를 하고 쉬었어요. 앞뒤 절의 시간 관계가 중요한 문맥에서는 단순한 나열인지 순서인지 살핀다."
+  },
+  {
+    "id": "ending-jiman",
+    "topic": "connective_ending",
+    "level": "A2-B1",
+    "title": "-지만: 대조",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=78638"
+    ],
+    "content": "-지만은 앞의 내용을 인정하면서 반대되거나 다른 사실을 덧붙인다. 예: 비가 오지만 산책할 거예요. 이유를 나타내는 -아서/-어서와는 기능이 다르므로 무조건 바꾸지 않는다."
+  },
+  {
+    "id": "ending-myeon",
+    "topic": "connective_ending",
+    "level": "A2-B1",
+    "title": "-(으)면: 조건과 가정",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=80262"
+    ],
+    "content": "-면과 -으면은 어떤 상황을 가정하거나 뒤 절의 조건을 나타낸다. 예: 시간이 있으면 같이 가요. 받침과 앞말의 형태에 따라 어미를 고르고, 실제로 일어난 일인지 가정인지 구별한다."
+  },
+  {
+    "id": "ending-nikka",
+    "topic": "connective_ending",
+    "level": "A2-B1",
+    "title": "-(으)니까: 이유와 판단 근거",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=-%EC%9C%BC%EB%8B%88%EA%B9%8C"
+    ],
+    "content": "-(으)니까는 뒤 절에 대한 이유나 판단 근거를 제시할 때 쓸 수 있다. 예: 길이 막히니까 일찍 출발하세요. -아서/-어서와 의미가 겹치는 경우가 있지만 뒤 절의 말하기 방식과 문맥을 함께 본다."
+  },
+  {
+    "id": "ending-ryeogo",
+    "topic": "connective_ending",
+    "level": "A2-B1",
+    "title": "-(으)려고: 의도와 목적",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=-%EB%A0%A4%EA%B3%A0"
+    ],
+    "content": "-(으)려고는 어떤 행동을 하려는 의도나 목적을 나타낸다. 예: 책을 빌리려고 도서관에 갔어요. 목적을 나타내는 앞 절의 주체와 뒤 절의 행동 관계를 문맥에서 살핀다."
+  },
+  {
+    "id": "grammar-an",
+    "topic": "grammar",
+    "level": "A1-B1",
+    "title": "안: 짧은 부정",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=%EC%95%88"
+    ],
+    "content": "안은 동사나 형용사 앞에서 부정을 나타낼 수 있다. 예: 오늘은 커피를 안 마셔요. 안과 못은 뜻이 다르므로 의지에 따른 부정인지 능력이나 상황 때문에 할 수 없는지 구별한다."
+  },
+  {
+    "id": "grammar-mot",
+    "topic": "grammar",
+    "level": "A1-B1",
+    "title": "못: 할 수 없음",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=%EB%AA%BB"
+    ],
+    "content": "못은 능력이나 상황 때문에 행동을 하지 못함을 나타낼 수 있다. 예: 시간이 없어서 영화를 못 봤어요. 일부러 하지 않은 안과는 문맥상 차이가 있다."
+  },
+  {
+    "id": "grammar-aya-hada",
+    "topic": "grammar",
+    "level": "A2-B1",
+    "title": "-아야/-어야 하다: 필요와 의무",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=-%EC%96%B4%EC%95%BC%20%ED%95%98%EB%8B%A4"
+    ],
+    "content": "-아야 하다와 -어야 하다는 어떤 행동이 필요하거나 필수적인 조건임을 나타낸다. 예: 내일 시험이 있어서 공부해야 해요. 단순한 희망이나 계획과 구별한다."
+  },
+  {
+    "id": "tense-get",
+    "topic": "tense",
+    "level": "A2-B1",
+    "title": "-겠-: 추측과 의지",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=-%EA%B2%A0-"
+    ],
+    "content": "-겠-은 미래에 대한 추측이나 말하는 사람의 의지 등을 나타낼 수 있다. 예: 내일은 춥겠어요. 제가 하겠습니다. 한 가지 뜻으로 고정하지 말고 화자와 문맥을 확인한다."
+  },
+  {
+    "id": "tense-progressive",
+    "topic": "tense",
+    "level": "A2-B1",
+    "title": "-고 있다: 진행 중인 행동",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicMarinerSearch/search?mainSearchWord=-%EA%B3%A0%20%EC%9E%88%EB%8B%A4"
+    ],
+    "content": "-고 있다는 어떤 행동이 진행 중임을 나타낼 수 있다. 예: 지금 책을 읽고 있어요. 동사와 상황에 따라 완료 뒤 상태를 나타내는 경우도 있으므로 현재 진행으로만 단정하지 않는다."
+  },
+  {
+    "id": "register-si",
+    "topic": "register",
+    "level": "A2-B1",
+    "title": "-(으)시-: 문장 주체 높임",
+    "source": "국립국어원 한국어기초사전",
+    "source_urls": [
+      "https://krdict.korean.go.kr/kor/dicSearch/SearchView?ParaWordNo=77102"
+    ],
+    "content": "-(으)시-는 문장의 주체를 높이는 표현에 쓰인다. 예: 선생님이 오세요. 누구를 높이는지에 따라 선택하며, 화자와 청자 관계만으로 모든 형태를 일률적으로 고치지 않는다."
+  }
+]

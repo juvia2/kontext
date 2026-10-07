@@ -1,0 +1,154 @@
+:root {
+  --ink: #28332a;
+  --muted: #68766b;
+  --line: #e6eadf;
+  --paper: #fcfcf8;
+  --green: #aae053;
+  --soft-green: #f1f8e7;
+  --shadow: 0 5px 0 #e8ece2;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  line-height: 1.55;
+}
+button, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+a { color: #276f49; overflow-wrap: anywhere; }
+[hidden] { display: none !important; }
+
+.shell { max-width: 800px; min-height: 100vh; margin: auto; padding: 0 20px; }
+.topbar { display: flex; align-items: center; min-height: 62px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; line-height: 1.1; }
+.brand-mark {
+  display: grid; place-items: center; width: 38px; height: 38px;
+  border-radius: 13px; background: var(--green); color: #354822;
+  box-shadow: inset 0 2px 0 #d9f2a8, 0 3px 0 #7eae38; font-size: 21px; font-family: Georgia, serif;
+}
+
+.tabbar { display: flex; gap: 6px; margin: 16px 0 0; padding: 5px; border-radius: 16px; background: #f2f5ee; }
+.tab {
+  flex: 1; min-width: 0; min-height: 42px; border: 0; border-radius: 12px;
+  background: transparent; color: #65746c; font-size: 13px; font-weight: 800;
+}
+.tab.active { background: #fff; color: #526d32; box-shadow: 0 3px 0 #e2e8d9; }
+.tab:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid #8bbd40; outline-offset: 2px; }
+.view { padding-top: 20px; }
+.card { border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: var(--shadow); }
+
+.composer { padding: 25px; }
+.composer h1 { margin: 0 0 5px; font-size: 29px; line-height: 1.25; letter-spacing: -.05em; }
+.intro { margin: 0; color: #5d6c70; font-size: 14px; }
+.composer label { display: block; margin: 23px 0 8px; font-size: 13px; font-weight: 800; }
+.composer textarea {
+  display: block; width: 100%; min-height: 145px; resize: vertical;
+  padding: 15px; border: 2px solid #dce6dc; border-radius: 16px;
+  outline: none; background: #fcfdf9; color: var(--ink);
+  font-size: 16px; line-height: 1.6;
+}
+.composer textarea:focus { border-color: #a3cb63; box-shadow: 0 0 0 4px #d7ecb366; }
+.composer textarea::placeholder { color: #9ca8a4; }
+.input-footer { display: flex; justify-content: space-between; gap: 10px; margin: 10px 0 8px; color: var(--muted); font-size: 11px; }
+.examples { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 17px; }
+.example-button {
+  padding: 8px 14px; border: 1px solid #dce7d2; border-radius: 100px;
+  background: #fcfdf9; color: #4b7149; font-size: 12px; font-weight: 800;
+}
+.example-button:hover { background: var(--soft-green); border-color: #b6d49b; }
+.notice { margin-bottom: 12px; padding: 9px 12px; border-radius: 12px; background: var(--soft-green); color: #286d44; font-size: 11px; }
+.notice.error { background: #fff0e9; color: #a14431; }
+.primary-button {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; min-height: 54px; border: 1px solid #94c746; border-radius: 15px;
+  background: linear-gradient(#b9e86d, var(--green) 65%, #a5da50);
+  color: #2e431f;
+  box-shadow: inset 0 2px 0 #d9f4a2, 0 5px 0 #77a934, 0 8px 13px #34482022;
+  font-size: 15px; font-weight: 900;
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+}
+.primary-button:hover:not(:disabled) { filter: brightness(1.03); }
+.primary-button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: inset 0 2px 0 #d9f4a2, 0 1px 0 #77a934, 0 3px 6px #34482022;
+}
+.primary-button:disabled { opacity: .82; }
+.small-note, .muted { color: var(--muted); font-size: 11px; }
+
+.results, .stack { display: grid; gap: 16px; }
+.results { padding-top: 23px; }
+.results h2 { margin: 4px 0 0; font-size: 21px; letter-spacing: -.04em; }
+.overall { margin: 0; padding: 17px; border-radius: 16px; background: #fff9df; color: #5d5237; font-size: 14px; font-weight: 700; }
+.feedback-card, .practice-card { padding: 20px; }
+.feedback-card p { margin: 9px 0; color: #465961; font-size: 13px; }
+.meta { margin-bottom: 10px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.comparison { display: grid; gap: 7px; }
+.phrase { padding: 10px 12px; border-radius: 12px; background: #f3f5f2; }
+.phrase.suggested { background: var(--soft-green); color: #246e47; }
+.phrase-label { display: block; margin-bottom: 2px; color: var(--muted); font-size: 10px; font-weight: 800; }
+.phrase strong { display: block; font-size: 15px; }
+.insight { padding: 11px 13px; border-radius: 12px; background: #f4efff; color: #60558a !important; }
+.evidence { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+.evidence summary { cursor: pointer; color: #267148; font-size: 12px; font-weight: 800; }
+.evidence p { font-size: 11px; }
+.evidence small { color: var(--muted); font-size: 10px; }
+.results .practice-head { margin-top: 14px; }
+.practice-card h3 { margin: 0 0 16px; font-size: 16px; }
+.choice {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px;
+  margin-top: 9px; padding: 10px 12px; border: 2px solid #dae5da;
+  border-radius: 14px; background: #fff; color: var(--ink);
+  text-align: left; font-size: 14px; font-weight: 700;
+}
+.choice:hover:not(:disabled) { background: #f3fbf3; border-color: #77b88c; }
+.choice .letter { display: grid; place-items: center; flex: none; width: 29px; height: 29px; border-radius: 9px; background: #eaf4eb; color: #267148; font-size: 12px; font-weight: 900; }
+.choice.correct { border-color: #58ac72; background: #eaf8ed; }
+.choice.wrong { border-color: #e08a79; background: #fff0eb; }
+.answer { margin: 14px 0 0; padding: 12px; border-radius: 12px; background: var(--soft-green); color: #286d44; font-size: 12px; font-weight: 700; }
+.answer.incorrect { background: #fff0eb; color: #98503d; }
+.secondary-button { min-height: 48px; border: 2px solid #9fcdaa; border-radius: 14px; background: var(--soft-green); color: #267148; font-size: 13px; font-weight: 900; }
+.secondary-button:hover { background: #ddf2e2; }
+
+.update-card { padding: 17px 20px; }
+.update-card summary { cursor: pointer; font-size: 12px; font-weight: 800; }
+.update-card p { color: var(--muted); font-size: 12px; }
+.inspector { overflow: hidden; }
+.inspector summary { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; list-style: none; cursor: pointer; }
+.inspector summary::-webkit-details-marker { display: none; }
+.inspector summary strong { display: block; font-size: 13px; }
+.inspector summary small { display: block; color: var(--muted); font-size: 11px; }
+#trace { max-height: 560px; overflow: auto; padding: 15px 20px; border-top: 1px solid var(--line); }
+.trace-step { padding: 9px 0; border-bottom: 1px solid var(--line); }
+.trace-step summary { padding: 0; font-size: 11px; font-weight: 700; }
+.trace-step pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 10px; border-radius: 8px; background: #f4f7f1; font-size: 10px; }
+
+.profile-card { padding: 24px; }
+.profile-card h2 { margin: 23px 0 10px; font-size: 16px; }
+.profile-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.pill { padding: 6px 9px; border-radius: 9px; background: var(--soft-green); color: #317450; font-size: 11px; font-weight: 800; }
+.pattern, .history-item { padding: 9px 0; border-top: 1px solid #eef1eb; font-size: 12px; }
+.pattern { display: flex; justify-content: space-between; }
+.history-item { color: var(--muted); }
+.history-item strong { display: block; color: var(--ink); font-size: 12px; }
+
+@media (max-width: 600px) {
+  .shell { padding: 0 16px 95px; }
+  .tabbar {
+    position: fixed; z-index: 5; left: 12px; right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    margin: 0; border: 1px solid #e0e7d8;
+    background: #f3f6ef; box-shadow: 0 8px 22px #607b4620;
+  }
+  .tab { min-height: 52px; }
+  .view { padding-top: 16px; }
+  .composer, .profile-card { padding: 20px; }
+  .composer h1 { font-size: 25px; }
+  .intro { font-size: 13px; }
+  .composer textarea { min-height: 125px; }
+  .feedback-card, .practice-card { padding: 18px; }
+}

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "demo-01",
+    "utterance": "어제 친구하고 영화를 봤는데 영화가 재미있어서 시간이 빨리 갔어요. 근데 영화 끝나고 친구가 밥을 먹자고 했는데 저는 이미 먹었어서 그냥 카페에 갔어요.",
+    "expected_categories": [
+      "connective_ending"
+    ],
+    "expected_evidence": [
+      "ending-eoseo"
+    ],
+    "note": "먹었어서의 판단은 문맥 의존적이다. 일률적인 오답 판정을 요구하지 않는다.",
+    "allowed_category_sets": [
+      [],
+      [
+        "connective_ending"
+      ]
+    ]
+  },
+  {
+    "id": "demo-02",
+    "utterance": "어제 도서관에 가요. 거기서 책을 읽었어요.",
+    "expected_categories": [
+      "tense"
+    ],
+    "expected_evidence": [
+      "tense-past"
+    ],
+    "note": "과거 사건을 말하는 문맥."
+  },
+  {
+    "id": "demo-03",
+    "utterance": "어제 책이 읽었어요. 정말 재미있었어요.",
+    "expected_categories": [
+      "particle_selection"
+    ],
+    "expected_evidence": [
+      "particle-object"
+    ],
+    "note": "책은 읽다의 목적어."
+  },
+  {
+    "id": "demo-04",
+    "utterance": "선생님이 지금 교실에 있어요. 제가 찾아갈게요.",
+    "expected_categories": [
+      "register"
+    ],
+    "expected_evidence": [
+      "honorific-existence"
+    ],
+    "note": "높임을 쓰는 상황이라면 계시다가 더 자연스러울 수 있다.",
+    "allowed_category_sets": [
+      [],
+      [
+        "register"
+      ]
+    ]
+  },
+  {
+    "id": "demo-05",
+    "utterance": "친구랑 영화를 봤어요. 근데 너무 길어서 조금 졸렸어요.",
+    "expected_categories": [],
+    "expected_evidence": [],
+    "note": "구어체 근데를 무조건 오류로 잡지 않는 음성 사례."
+  },
+  {
+    "id": "demo-06",
+    "utterance": "저는 학생이에요. 어제 친구와 같이 한국어를 공부했어요.",
+    "expected_categories": [],
+    "expected_evidence": [],
+    "note": "문제 없는 문장에 대한 오탐 점검."
+  },
+  {
+    "id": "demo-07",
+    "utterance": "비가 와서 약속에 늦었어요.",
+    "expected_categories": [],
+    "expected_evidence": [],
+    "note": "정상적인 원인 연결."
+  },
+  {
+    "id": "demo-08",
+    "utterance": "저는 사과가 먹었어요.",
+    "expected_categories": [
+      "particle_selection"
+    ],
+    "expected_evidence": [
+      "particle-object"
+    ],
+    "note": "사과를이 기대되는 목적어 문맥."
+  }
+]
