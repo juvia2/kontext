@@ -1,12 +1,100 @@
 from __future__ import annotations
 
 import json
+import os
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 from typing import Any, Protocol
 
+from dotenv import load_dotenv
 from google import genai
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
-from src.schemas import LanguageAnalysis, TutorResponse
+from src.rag import GeminiEmbedder, Retriever, load_chunks
+
+ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(ROOT / '.env')
+
+
+# Gemini가 반환할 JSON의 모양을 먼저 정합니다.
+class Judgment(str, Enum):
+    ERROR = "error"
+    LESS_NATURAL = "less_natural"
+    ACCEPTABLE = "acceptable"
+    UNCERTAIN = "uncertain"
+
+
+class ErrorCategory(str, Enum):
+    GRAMMAR = "grammar"
+    PARTICLE_SELECTION = "particle_selection"
+    CONNECTIVE_ENDING = "connective_ending"
+    TENSE = "tense"
+    LEXICAL_CHOICE = "lexical_choice"
+    COLLOCATION = "collocation"
+    PRAGMATICS = "pragmatics"
+    REGISTER = "register"
+    NATURALNESS = "naturalness"
+
+
+class LanguageError(BaseModel):
+    expression: str = Field(min_length=1)
+    category: ErrorCategory
+    judgment: Judgment
+    explanation: str = Field(min_length=1)
+    suggestion: str = Field(min_length=1)
+    confidence: float = Field(ge=0, le=1)
+
+
+class LanguageAnalysis(BaseModel):
+    utterance: str = Field(min_length=1)
+    errors: list[LanguageError]
+    overall_feedback: str = Field(min_length=1)
+
+
+class FeedbackItem(BaseModel):
+    error_index: int = Field(ge=0)
+    correction: str = Field(min_length=1)
+    explanation: str = Field(min_length=1)
+    natural_alternative: str = Field(min_length=1)
+    personalized_insight: str = Field(min_length=1)
+    evidence_ids: list[str]
+
+
+class ProfileUpdateProposal(BaseModel):
+    error_index: int = Field(ge=0)
+    error_type: str = Field(min_length=1)
+    expression: str = Field(min_length=1)
+    suggestion: str = Field(min_length=1)
+
+
+class FeedbackOutput(BaseModel):
+    overall: str = Field(min_length=1)
+    items: list[FeedbackItem]
+    profile_updates: list[ProfileUpdateProposal]
+
+
+class PracticeQuestion(BaseModel):
+    question: str = Field(min_length=1)
+    choices: list[str] = Field(min_length=3, max_length=4)
+    answer_index: int = Field(ge=0, le=3)
+    explanation: str = Field(min_length=1)
+    target_category: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def answer_is_present(self) -> "PracticeQuestion":
+        if self.answer_index >= len(self.choices):
+            raise ValueError("answer_index must refer to a choice")
+        return self
+
+
+class PracticeSet(BaseModel):
+    questions: list[PracticeQuestion] = Field(max_length=3)
+
+
+class TutorResponse(BaseModel):
+    feedback: FeedbackOutput
+    question: PracticeQuestion
 
 class ModelOutputError(RuntimeError):
     pass
@@ -82,3 +170,34 @@ class Generator:
 
     def respond(self, context: dict[str, Any]) -> TutorResponse:
         return self.model.parse(TUTOR_INSTRUCTIONS, context, TutorResponse)
+
+
+@dataclass(frozen=True)
+class ModelSettings:
+    api_key: str
+    model: str
+    embedding_model: str
+
+    @property
+    def ready(self) -> bool:
+        return bool(self.api_key)
+
+
+def settings(getenv=os.getenv) -> ModelSettings:
+    return ModelSettings(
+        api_key=getenv('GEMINI_API_KEY', ''),
+        model=getenv('TUTOR_MODEL', 'gemini-3.5-flash-lite'),
+        embedding_model=getenv('EMBEDDING_MODEL', 'gemini-embedding-2'),
+    )
+
+
+def build_model_resources(config: ModelSettings) -> tuple[Analyzer, Retriever, Generator]:
+    if not config.ready:
+        raise ValueError('GEMINI_API_KEY is required')
+    api = genai.Client(api_key=config.api_key)
+    structured = GeminiClient(api, config.model)
+    retriever = Retriever(
+        load_chunks(ROOT / 'data' / 'grammar.json'),
+        GeminiEmbedder(api, config.embedding_model),
+    )
+    return Analyzer(structured), retriever, Generator(structured)

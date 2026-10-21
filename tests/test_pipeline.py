@@ -7,9 +7,9 @@ import pytest
 from src.learner import connect
 from src.learner import LearnerRepository
 from src.rag import Retriever, load_chunks
-from src.schemas import ErrorCategory, Judgment, LanguageAnalysis, LanguageError
-from src.schemas import FeedbackItem, FeedbackOutput, ProfileUpdateProposal
-from src.schemas import PracticeQuestion, PracticeSet, TutorResponse
+from src.llm import ErrorCategory, Judgment, LanguageAnalysis, LanguageError
+from src.llm import FeedbackItem, FeedbackOutput, ProfileUpdateProposal
+from src.llm import PracticeQuestion, PracticeSet, TutorResponse
 from src.pipeline import PipelineFailure, TutorPipeline
 from src.llm import Analyzer
 

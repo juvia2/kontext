@@ -5,15 +5,13 @@ import json
 import tempfile
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 from src.learner import connect
 from src.learner import LearnerRepository
-from src.services import build_model_resources, settings
+from src.llm import build_model_resources, settings
 from src.pipeline import PipelineFailure, TutorPipeline
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parent
 
 
 def main() -> None:
@@ -23,7 +21,6 @@ def main() -> None:
     args = parser.parse_args()
     if args.limit is not None and args.limit < 1:
         parser.error("--limit must be at least 1")
-    load_dotenv(ROOT / ".env")
     config = settings()
     if not config.ready:
         parser.error("GEMINI_API_KEY is required; no model evaluation was run")

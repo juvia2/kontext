@@ -16,7 +16,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.learner import LearnerRepository, connect
-from src.services import ModelSettings, build_model_resources, settings
+from src.llm import ModelSettings, build_model_resources, settings
 from src.pipeline import PipelineFailure, TutorPipeline
 
 ROOT = Path(__file__).resolve().parent

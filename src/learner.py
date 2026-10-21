@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from src.rag import SearchMatch
-from src.schemas import Judgment, LanguageAnalysis, ProfileUpdateProposal
+from src.llm import Judgment, LanguageAnalysis, ProfileUpdateProposal
 
 # Chapter 06: learner state stored outside the LLM.
 

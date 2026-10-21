@@ -9,7 +9,7 @@ from uuid import uuid4
 from src.learner import LearnerRepository, ProfileTools, ToolResult
 from src.llm import Analyzer, Generator
 from src.rag import Retriever, SearchMatch
-from src.schemas import Judgment, LanguageAnalysis, FeedbackOutput, PracticeSet
+from src.llm import Judgment, LanguageAnalysis, FeedbackOutput, PracticeSet
 
 T = TypeVar("T")
 logger = logging.getLogger("language_tutor")

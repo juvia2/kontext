@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 import app
 from src.llm import GeminiClient
 from src.rag import GeminiEmbedder
-from src.schemas import LanguageAnalysis
+from src.llm import LanguageAnalysis
 
 
 def test_gemini_structured_output_preserves_schema() -> None:
