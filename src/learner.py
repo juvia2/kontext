@@ -90,17 +90,6 @@ class LearnerRepository:
         ).fetchall()
         return [dict(row) for row in rows]
 
-    def record_error(self, learner_id: str, request_id: str, error_index: int,
-                     expression: str, error_type: str, suggestion: str, confidence: float) -> bool:
-        with self.connection:
-            cursor = self.connection.execute(
-                "INSERT OR IGNORE INTO error_history"
-                "(learner_id, request_id, error_index, expression, error_type, suggestion, confidence) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (learner_id, request_id, error_index, expression, error_type, suggestion, confidence),
-            )
-        return cursor.rowcount == 1
-
     def record_errors_batch(self, records: list[tuple[str, str, int, str, str, str, float]]) -> list[bool]:
         inserted: list[bool] = []
         with self.connection:
@@ -121,8 +110,10 @@ class LearnerRepository:
             (3, "주제 조사", "particle_selection", "은/는"),
             (4, "목적격 조사", "particle_selection", "을/를"),
         ]
-        for index, expression, category, suggestion in seeds:
-            self.record_error(learner_id, "demo-seed", index, expression, category, suggestion, 1.0)
+        self.record_errors_batch([
+            (learner_id, "demo-seed", index, expression, category, suggestion, 1.0)
+            for index, expression, category, suggestion in seeds
+        ])
 
 
 @dataclass(frozen=True)
@@ -165,18 +156,6 @@ class ProfileTools:
             "updated" if inserted else "already_recorded",
             "stored in error_history" if inserted else "idempotent replay",
         )
-
-    def update(self, *, learner_id: str, request_id: str, proposal: ProfileUpdateProposal,
-               analysis: LanguageAnalysis, evidence: list[SearchMatch]) -> ToolResult:
-        rejection = self._rejection(learner_id, proposal, analysis, evidence)
-        if rejection is not None:
-            return rejection
-        error = analysis.errors[proposal.error_index]
-        inserted = self.repository.record_error(
-            learner_id, request_id, proposal.error_index, error.expression,
-            error.category.value, error.suggestion, error.confidence,
-        )
-        return self._stored_result(learner_id, proposal, inserted)
 
     def update_many(self, *, learner_id: str, request_id: str,
                     proposals: list[ProfileUpdateProposal], analysis: LanguageAnalysis,

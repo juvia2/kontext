@@ -5,7 +5,7 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
 from dotenv import load_dotenv
 from google import genai
@@ -96,14 +96,6 @@ class TutorResponse(BaseModel):
     feedback: FeedbackOutput
     question: PracticeQuestion
 
-class ModelOutputError(RuntimeError):
-    pass
-
-
-class StructuredModelClient(Protocol):
-    def parse(self, system: str, payload: dict[str, Any], schema: type[BaseModel]) -> BaseModel: ...
-
-
 class GeminiClient:
     def __init__(self, client: genai.Client, model: str):
         self.client = client
@@ -119,7 +111,7 @@ class GeminiClient:
             },
         )
         if not response.output_text:
-            raise ModelOutputError('Gemini returned no usable structured response')
+            raise ValueError('Gemini returned no usable structured response')
         return schema.model_validate_json(response.output_text)
 
 
@@ -135,7 +127,7 @@ Use concise Korean explanations suitable for a B1 learner."""
 
 
 class Analyzer:
-    def __init__(self, model: StructuredModelClient):
+    def __init__(self, model):
         self.model = model
 
     def analyze(self, utterance: str) -> LanguageAnalysis:
@@ -165,7 +157,7 @@ form as universally wrong."""
 
 
 class Generator:
-    def __init__(self, model: StructuredModelClient):
+    def __init__(self, model):
         self.model = model
 
     def respond(self, context: dict[str, Any]) -> TutorResponse:

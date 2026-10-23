@@ -113,7 +113,7 @@ def analyze(request: AnalysisRequest):
                 'analysis': result.analysis.model_dump(mode='json'),
                 'feedback': result.feedback.model_dump(mode='json'),
                 'practice': result.practice.model_dump(mode='json'),
-                'evidence': {str(index): [TutorPipeline._match_dict(match) for match in matches]
+                'evidence': {str(index): [match.as_dict() for match in matches]
                              for index, matches in result.evidence.items()},
                 'tool_results': [item.as_dict() for item in result.tool_results],
                 'trace': result.trace.as_dict(),

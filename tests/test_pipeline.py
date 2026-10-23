@@ -89,9 +89,9 @@ def test_invalid_tool_proposal_cannot_write(tmp_path: Path) -> None:
     evidence = pipeline.retriever.retrieve("연결 어서", "connective_ending")
     bad = ProfileUpdateProposal(error_index=0, error_type="tense", expression="먹었어서", suggestion="먹어서")
     before = repository.get_profile("test_user").recent_patterns["connective_ending"]
-    result = pipeline.tools.update(learner_id="test_user", request_id="fixed-id", proposal=bad,
-                                   analysis=analysis, evidence=evidence)
-    assert result.status == "rejected"
+    result = pipeline.tools.update_many(learner_id="test_user", request_id="fixed-id",
+                                        proposals=[bad], analysis=analysis, evidence={0: evidence})
+    assert result[0].status == "rejected"
     assert repository.get_profile("test_user").recent_patterns["connective_ending"] == before
 
 

@@ -7,9 +7,8 @@ from typing import Any, Callable, TypeVar
 from uuid import uuid4
 
 from src.learner import LearnerRepository, ProfileTools, ToolResult
-from src.llm import Analyzer, Generator
+from src.llm import Analyzer, Generator, Judgment, LanguageAnalysis, FeedbackOutput, PracticeSet
 from src.rag import Retriever, SearchMatch
-from src.llm import Judgment, LanguageAnalysis, FeedbackOutput, PracticeSet
 
 T = TypeVar("T")
 logger = logging.getLogger("language_tutor")
@@ -94,7 +93,7 @@ class TutorPipeline:
             evidence = trace.step("Retrieved Knowledge", lambda: {
                 index: self.retriever.retrieve(query, analysis.errors[index].category.value)
                 for index, query in queries.items()
-            }, lambda value: {str(i): [self._match_dict(match) for match in matches]
+            }, lambda value: {str(i): [match.as_dict() for match in matches]
                                for i, matches in value.items()})
             context = self._context(utterance, analysis, profile.as_context(), evidence, indices)
             trace.step("Augmented Context", lambda: context, lambda value: value)
@@ -135,18 +134,11 @@ class TutorPipeline:
         return utterance
 
     @staticmethod
-    def _match_dict(match: SearchMatch) -> dict:
-        return {"id": match.chunk.id, "document_id": match.chunk.document_id,
-                "title": match.chunk.title, "text": match.chunk.text,
-                "source": match.chunk.source, "source_urls": match.chunk.source_urls,
-                "score": round(match.score, 4)}
-
-    @classmethod
-    def _context(cls, utterance: str, analysis: LanguageAnalysis, profile: dict,
+    def _context(utterance: str, analysis: LanguageAnalysis, profile: dict,
                  evidence: dict[int, list[SearchMatch]], indices: list[int]) -> dict:
         return {"utterance": utterance, "analysis": analysis.model_dump(mode="json"),
                 "learner_profile": profile, "actionable_error_indices": indices,
-                "evidence": {str(index): [cls._match_dict(match) for match in matches]
+                "evidence": {str(index): [match.as_dict() for match in matches]
                              for index, matches in evidence.items()}}
 
     @staticmethod

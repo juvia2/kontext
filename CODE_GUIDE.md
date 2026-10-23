@@ -23,6 +23,8 @@ web/: 피드백, 문제, 학습 기록, 단계별 실행 기록 표시
 
 여기서 **LLM 모델**은 Gemini API 뒤에 있습니다. 토큰화, 모델 내부 임베딩, Attention, Transformer 연산은 이 앱에서 보거나 수정할 수 없습니다. 이 프로젝트가 직접 구현한 것은 API 호출을 연결하는 **LLM 시스템**입니다. `src/rag.py`의 임베딩은 문법 문서를 찾기 위한 별도의 검색 벡터이며 모델 내부의 토큰 임베딩이 아닙니다.
 
+Uvicorn의 내부 실행 코드는 이 저장소에 복사되어 있지 않습니다. `Procfile`은 설치된 Uvicorn 패키지로 `app.py`의 서버를 시작하는 한 줄짜리 명령입니다. 학습할 코드는 `src/`의 파이프라인과 `app.py`의 연결 부분입니다. 화면은 이미 모바일용 HTML·CSS·JS로 만들어져 있으므로, Streamlit 예시 코드로 바꾸면 현재 화면과 API 흐름도 다시 만들어야 합니다.
+
 ## 2. 이 폴더 구조를 선택한 이유
 
 ```text
@@ -103,7 +105,7 @@ Kontext/
 
 ### `src/rag.py`와 `data/` — 외부 문법 지식을 어떻게 찾을까?
 
-`data/grammar.json`의 각 항목에는 `id`, `topic`, `title`, `level`, `content`, `source`, `source_urls`가 있습니다. `load_chunks()`는 `content`를 빈 줄 기준 문단으로 나눕니다. `GeminiEmbedder.embed()`는 각 문단과 검색 질문을 숫자 벡터로 바꿉니다. `cosine()`은 두 벡터의 방향이 얼마나 비슷한지 계산합니다. `Retriever.retrieve()`는 먼저 같은 `topic`의 문단만 고르고 유사도 상위 결과를 반환합니다. 한 범주의 문서 벡터는 첫 검색 후 서버 메모리에서 재사용합니다.
+`data/grammar.json`의 각 항목에는 `id`, `topic`, `title`, `level`, `content`, `source`, `source_urls`가 있습니다. `load_chunks()`는 `content`를 빈 줄 기준 문단으로 나눕니다. `GeminiEmbedder.embed()`는 각 문단과 검색 질문을 숫자 벡터로 바꿉니다. `Retriever.retrieve()`는 같은 `topic`의 문단을 고르고 `cosine()`으로 유사도를 계산해 상위 결과를 반환합니다. 검색 결과를 화면에 보낼 JSON으로 바꾸는 부분도 `SearchMatch.as_dict()`에 있습니다. 한 범주의 문서 벡터는 첫 검색 후 서버 메모리에서 재사용합니다.
 
 이 과정이 RAG의 **Retrieval**입니다. 검색한 문단을 7단계의 Context에 넣어 피드백을 생성하는 것이 **Augmented Generation**입니다. 별도 Vector DB 없이 작은 자료집을 메모리에서 검색합니다. 검색 유사도는 문서의 순위용 숫자이며 문법 오류의 확률이나 인용 내용의 참을 보장하지 않습니다. 문법 자료 24개는 앱이 받아들이는 입력 문장 24개를 뜻하지 않습니다. 사용자는 자유롭게 문장을 넣을 수 있지만, 자료집이 포괄하는 문법 범위에는 한계가 있습니다.
 

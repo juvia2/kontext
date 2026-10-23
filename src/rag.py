@@ -5,7 +5,6 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Protocol
 
 from google import genai
 from google.genai import types
@@ -49,6 +48,12 @@ class SearchMatch:
     chunk: KnowledgeChunk
     score: float
 
+    def as_dict(self) -> dict:
+        return {"id": self.chunk.id, "document_id": self.chunk.document_id,
+                "title": self.chunk.title, "text": self.chunk.text,
+                "source": self.chunk.source, "source_urls": self.chunk.source_urls,
+                "score": round(self.score, 4)}
+
 
 def cosine(left: list[float], right: list[float]) -> float:
     if len(left) != len(right) or not left:
@@ -57,28 +62,6 @@ def cosine(left: list[float], right: list[float]) -> float:
     norm_left = math.sqrt(sum(a * a for a in left))
     norm_right = math.sqrt(sum(b * b for b in right))
     return dot / (norm_left * norm_right) if norm_left and norm_right else 0.0
-
-
-class InMemoryVectorStore:
-    def __init__(self, chunks: list[KnowledgeChunk], vectors: list[list[float]]):
-        if len(chunks) != len(vectors):
-            raise ValueError("Each chunk must have one embedding")
-        self.chunks = chunks
-        self.vectors = vectors
-
-    def search(self, query_vector: list[float], topic: str, top_k: int = 3) -> list[SearchMatch]:
-        matches = [
-            SearchMatch(chunk, cosine(query_vector, vector))
-            for chunk, vector in zip(self.chunks, self.vectors)
-            if chunk.topic == topic
-        ]
-        return sorted(matches, key=lambda item: item.score, reverse=True)[:top_k]
-
-
-class Embedder(Protocol):
-    model: str
-
-    def embed(self, texts: list[str]) -> list[list[float]]: ...
 
 
 def load_chunks(path: str | Path) -> list[KnowledgeChunk]:
@@ -96,21 +79,25 @@ def load_chunks(path: str | Path) -> list[KnowledgeChunk]:
 
 
 class Retriever:
-    def __init__(self, chunks: list[KnowledgeChunk], embedder: Embedder):
+    def __init__(self, chunks: list[KnowledgeChunk], embedder):
         self.chunks = chunks
         self.embedder = embedder
-        self._stores: dict[str, InMemoryVectorStore] = {}
+        self._vectors: dict[str, list[list[float]]] = {}
 
     def retrieve(self, query: str, topic: str, top_k: int = 2) -> list[SearchMatch]:
         topic_chunks = [chunk for chunk in self.chunks if chunk.topic == topic]
         if not topic_chunks:
             return []
         query_text = f"task: search result | query: {query}"
-        if topic not in self._stores:
+        if topic not in self._vectors:
             documents = [f"title: {chunk.title} | text: {chunk.text}" for chunk in topic_chunks]
             vectors = self.embedder.embed([query_text, *documents])
-            self._stores[topic] = InMemoryVectorStore(topic_chunks, vectors[1:])
+            if len(vectors) != len(topic_chunks) + 1:
+                raise ValueError("Each query and document needs one embedding")
+            self._vectors[topic] = vectors[1:]
             query_vector = vectors[0]
         else:
             query_vector = self.embedder.embed([query_text])[0]
-        return self._stores[topic].search(query_vector, topic, top_k=top_k)
+        matches = [SearchMatch(chunk, cosine(query_vector, vector))
+                   for chunk, vector in zip(topic_chunks, self._vectors[topic])]
+        return sorted(matches, key=lambda item: item.score, reverse=True)[:top_k]
