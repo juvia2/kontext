@@ -1,90 +1,48 @@
 [
-  {
-    "id": "demo-01",
-    "utterance": "어제 친구하고 영화를 봤는데 영화가 재미있어서 시간이 빨리 갔어요. 근데 영화 끝나고 친구가 밥을 먹자고 했는데 저는 이미 먹었어서 그냥 카페에 갔어요.",
-    "expected_categories": [
-      "connective_ending"
-    ],
-    "expected_evidence": [
-      "ending-eoseo"
-    ],
-    "note": "먹었어서의 판단은 문맥 의존적이다. 일률적인 오답 판정을 요구하지 않는다.",
-    "allowed_category_sets": [
-      [],
-      [
-        "connective_ending"
-      ]
-    ]
-  },
-  {
-    "id": "demo-02",
-    "utterance": "어제 도서관에 가요. 거기서 책을 읽었어요.",
-    "expected_categories": [
-      "tense"
-    ],
-    "expected_evidence": [
-      "tense-past"
-    ],
-    "note": "과거 사건을 말하는 문맥."
-  },
-  {
-    "id": "demo-03",
-    "utterance": "어제 책이 읽었어요. 정말 재미있었어요.",
-    "expected_categories": [
-      "particle_selection"
-    ],
-    "expected_evidence": [
-      "particle-object"
-    ],
-    "note": "책은 읽다의 목적어."
-  },
-  {
-    "id": "demo-04",
-    "utterance": "선생님이 지금 교실에 있어요. 제가 찾아갈게요.",
-    "expected_categories": [
-      "register"
-    ],
-    "expected_evidence": [
-      "honorific-existence"
-    ],
-    "note": "높임을 쓰는 상황이라면 계시다가 더 자연스러울 수 있다.",
-    "allowed_category_sets": [
-      [],
-      [
-        "register"
-      ]
-    ]
-  },
-  {
-    "id": "demo-05",
-    "utterance": "친구랑 영화를 봤어요. 근데 너무 길어서 조금 졸렸어요.",
-    "expected_categories": [],
-    "expected_evidence": [],
-    "note": "구어체 근데를 무조건 오류로 잡지 않는 음성 사례."
-  },
-  {
-    "id": "demo-06",
-    "utterance": "저는 학생이에요. 어제 친구와 같이 한국어를 공부했어요.",
-    "expected_categories": [],
-    "expected_evidence": [],
-    "note": "문제 없는 문장에 대한 오탐 점검."
-  },
-  {
-    "id": "demo-07",
-    "utterance": "비가 와서 약속에 늦었어요.",
-    "expected_categories": [],
-    "expected_evidence": [],
-    "note": "정상적인 원인 연결."
-  },
-  {
-    "id": "demo-08",
-    "utterance": "저는 사과가 먹었어요.",
-    "expected_categories": [
-      "particle_selection"
-    ],
-    "expected_evidence": [
-      "particle-object"
-    ],
-    "note": "사과를이 기대되는 목적어 문맥."
-  }
+ {"id": "p01", "utterance": "어제 책이 읽었어요. 정말 재미있었어요.", "expect": [{"expression": "책이", "category": "particle", "grammar_id": "p-object"}]},
+ {"id": "p02", "utterance": "저는 사과가 먹었어요.", "expect": [{"expression": "사과가", "category": "particle", "grammar_id": "p-object"}]},
+ {"id": "p03", "utterance": "저는 커피를 좋아요.", "expect": [{"expression": "커피를", "category": "particle", "grammar_id": "p-subject"}], "note": "'커피를 좋아해요'로 고쳐도 정답으로 본다.", "optional": ["좋아요"]},
+ {"id": "p04", "utterance": "주말에 도서관에 공부했어요.", "expect": [{"expression": "도서관에", "category": "particle", "grammar_id": "p-place"}]},
+ {"id": "p05", "utterance": "어제에 친구를 만났어요.", "expect": [{"expression": "어제에", "category": "particle", "grammar_id": "p-time"}]},
+ {"id": "p06", "utterance": "생일에 친구를 선물을 줬어요.", "expect": [{"expression": "친구를", "category": "particle", "grammar_id": "p-recipient"}]},
+ {"id": "p07", "utterance": "학교에 버스에 왔어요.", "expect": [{"expression": "버스에", "category": "particle", "grammar_id": "p-ro"}]},
+ {"id": "p08", "utterance": "지갑에 천 원밖에 있어요.", "expect": [{"expression": "있어요", "category": "particle", "grammar_id": "p-only"}], "optional": ["천 원밖에"]},
+ {"id": "p09", "utterance": "형이 저를 더 커요.", "expect": [{"expression": "저를", "category": "particle", "grammar_id": "p-than"}]},
+ {"id": "e01", "utterance": "비가 와서 우산을 가져가세요.", "expect": [{"expression": "와서", "category": "ending", "grammar_id": "e-aseo"}]},
+ {"id": "e02", "utterance": "어제 학교에 가고 공부했어요.", "expect": [{"expression": "가고", "category": "ending", "grammar_id": "e-go"}]},
+ {"id": "e03", "utterance": "이 옷이 예쁘는데 너무 비싸요.", "expect": [{"expression": "예쁘는데", "category": "ending", "grammar_id": "e-neunde"}]},
+ {"id": "e04", "utterance": "밥을 먹면 항상 졸려요.", "expect": [{"expression": "먹면", "category": "ending", "grammar_id": "e-myeon"}]},
+ {"id": "e05", "utterance": "한국어를 공부하러 책을 샀어요.", "expect": [{"expression": "공부하러", "category": "ending", "grammar_id": "e-purpose"}]},
+ {"id": "e06", "utterance": "오늘 날씨가 정말 덥어요.", "expect": [{"expression": "덥어요", "category": "ending", "grammar_id": "e-irregular"}]},
+ {"id": "e07", "utterance": "친구가 내일 온다 말했어요.", "expect": [{"expression": "온다", "category": "ending", "grammar_id": "e-quote"}], "optional": ["말했어요"]},
+ {"id": "e08", "utterance": "저는 이미 먹었어서 그냥 카페에 갔어요.", "expect": [], "optional": ["먹었어서"], "note": "'-었어서'는 덜 자연스러움으로 잡아도, 잡지 않아도 통과."},
+ {"id": "t01", "utterance": "어제 도서관에 가요. 거기서 책을 읽었어요.", "expect": [{"expression": "가요", "category": "tense", "grammar_id": "t-past"}]},
+ {"id": "t02", "utterance": "내일 비가 올게요.", "expect": [{"expression": "올게요", "category": "tense", "grammar_id": "t-future"}]},
+ {"id": "t03", "utterance": "친구가 의자에 앉고 있어요.", "expect": [{"expression": "앉고", "category": "tense", "grammar_id": "t-progress"}], "optional": ["있어요"]},
+ {"id": "t04", "utterance": "어제 먹는 음식이 정말 맛있었어요.", "expect": [{"expression": "먹는", "category": "tense", "grammar_id": "t-modifier"}]},
+ {"id": "h01", "utterance": "할머니가 방에서 자요.", "expect": [{"expression": "자요", "category": "honorific", "grammar_id": "h-special"}], "optional": ["할머니가"]},
+ {"id": "h02", "utterance": "선생님께 선물을 줬어요.", "expect": [{"expression": "줬어요", "category": "honorific", "grammar_id": "h-humble"}]},
+ {"id": "h03", "utterance": "안녕하세요. 나는 학생이야.", "expect": [{"expression": "학생이야", "category": "honorific", "grammar_id": "h-level"}], "optional": ["나는"]},
+ {"id": "pt01", "utterance": "저는 주말에 안 공부해요.", "expect": [{"expression": "안 공부해요", "category": "pattern", "grammar_id": "pt-negation"}]},
+ {"id": "pt02", "utterance": "제 친구는 한국에 가고 싶어요.", "expect": [{"expression": "싶어요", "category": "pattern", "grammar_id": "pt-want"}]},
+ {"id": "pt03", "utterance": "제 취미는 책을 읽어요.", "expect": [{"expression": "읽어요", "category": "pattern", "grammar_id": "pt-nominal"}]},
+ {"id": "pt04", "utterance": "여기에서 사진을 찍으면 돼요?", "expect": [], "optional": ["찍으면"], "note": "허락을 묻는 문맥이면 '찍어도'가 낫지만 문장만으로는 단정할 수 없다."},
+ {"id": "w01", "utterance": "감기에 걸려서 약을 마셨어요.", "expect": [{"expression": "마셨어요", "category": "word", "grammar_id": "w-collocation"}]},
+ {"id": "w02", "utterance": "오늘 모자를 입었어요.", "expect": [{"expression": "입었어요", "category": "word", "grammar_id": "w-wear"}]},
+ {"id": "w03", "utterance": "주말에 친구와 축구를 놀았어요.", "expect": [{"expression": "놀았어요", "category": "word", "grammar_id": "w-do-play"}]},
+ {"id": "w04", "utterance": "지금 삼 시예요.", "expect": [{"expression": "삼", "category": "word", "grammar_id": "w-number"}]},
+ {"id": "w05", "utterance": "이 영화는 별로 재미있어요.", "expect": [{"expression": "재미있어요", "category": "word", "grammar_id": "w-negative-adverb"}], "optional": ["별로"]},
+ {"id": "s01", "utterance": "여기 들어가면 안 되요.", "expect": [{"expression": "되요", "category": "spelling", "grammar_id": "s-doe"}]},
+ {"id": "s02", "utterance": "저는 학생이예요.", "expect": [{"expression": "학생이예요", "category": "spelling", "grammar_id": "s-ieyo"}]},
+ {"id": "s03", "utterance": "제가 할께요.", "expect": [{"expression": "할께요", "category": "spelling", "grammar_id": "s-geyo"}]},
+ {"id": "s04", "utterance": "저는 한국어를 할수있어요.", "expect": [{"expression": "할수있어요", "category": "spelling", "grammar_id": "s-spacing"}]},
+ {"id": "m01", "utterance": "어제 친구를 선물을 줬어요. 근데 친구가 별로 좋아했어요.", "expect": [{"expression": "친구를", "category": "particle", "grammar_id": "p-recipient"}, {"expression": "좋아했어요", "category": "word", "grammar_id": "w-negative-adverb"}], "optional": ["별로"], "note": "오류 2개. '근데'는 잡으면 오탐."},
+ {"id": "c01", "utterance": "저는 학생이에요. 어제 친구와 같이 한국어를 공부했어요.", "expect": []},
+ {"id": "c02", "utterance": "친구랑 영화를 봤어요. 근데 너무 길어서 조금 졸렸어요.", "expect": [], "note": "구어 '근데'를 오류로 잡으면 오탐."},
+ {"id": "c03", "utterance": "비가 와서 약속에 늦었어요.", "expect": []},
+ {"id": "c04", "utterance": "시간이 없으니까 빨리 갑시다.", "expect": []},
+ {"id": "c05", "utterance": "주말에 친구를 만나서 같이 저녁을 먹을 거예요.", "expect": []},
+ {"id": "c06", "utterance": "선생님께서 교실에 계세요. 제가 찾아갈게요.", "expect": []},
+ {"id": "c07", "utterance": "저는 서울에서 살아요. 회사는 집에서 가까워요.", "expect": []},
+ {"id": "c08", "utterance": "이거 뭐예요? 좀 비싼 것 같아요.", "expect": [], "note": "구어 준말 '이거, 뭐, 좀'을 잡으면 오탐."}
 ]

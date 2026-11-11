@@ -1,167 +1,177 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
+from fakes import FakeModel, analysis_for, make_pipeline, tutor_for
 
-from src.learner import connect
-from src.learner import LearnerRepository
-from src.rag import Retriever, load_chunks
-from src.llm import ErrorCategory, Judgment, LanguageAnalysis, LanguageError
-from src.llm import FeedbackItem, FeedbackOutput, ProfileUpdateProposal
-from src.llm import PracticeQuestion, PracticeSet, TutorResponse
-from src.pipeline import PipelineFailure, TutorPipeline
-from src.llm import Analyzer
+from src.llm import ModelError, build_analysis, locate
+from src.pipeline import PipelineFailure, apply_corrections, build_query, sentence_around
+from src.schemas import AnalysisOutput, Candidate, ProfileUpdateCall
+
+SENTENCE = "어제 책이 읽었어요. 근데 정말 재미있었어요."
 
 
-ROOT = Path(__file__).resolve().parents[1]
+def test_full_flow_cites_evidence_and_saves(tmp_path):
+    pipeline, repository, model = make_pipeline(tmp_path)
+    result = pipeline.run("tester", SENTENCE)
+    payload = result.as_payload({"p-object": "을/를: 동작의 대상"})
+    finding = payload["findings"][0]
+    assert finding["expression"] == "책이" and finding["actionable"]
+    assert finding["evidence"][0]["id"] == "p-object" and finding["evidence"][0]["cited"]
+    assert finding["record"]["status"] == "saved" and finding["seen_count"] == 1
+    assert payload["corrected"] == "어제 책을 읽었어요. 근데 정말 재미있었어요."
+    assert "answer_index" not in payload["question"]
+    assert [s["key"] for s in payload["trace"]["steps"]] == [
+        "input", "profile", "analysis", "retrieval", "generation", "tools"]
+    assert payload["trace"]["model_calls"] == 2
+    assert repository.get_profile("tester").grammar_counts == {"p-object": 1}
+    assert model.calls == ["AnalysisOutput", "TutorOutput"]
 
 
-class FakeEmbedder:
-    model = "fake-test-embedder"
-
-    def embed(self, texts: list[str]) -> list[list[float]]:
-        return [[1.0, 0.0] if "어서" in text or "연결" in text else [0.0, 1.0] for text in texts]
-
-
-class FakeAnalyzer:
-    def analyze(self, utterance: str) -> LanguageAnalysis:
-        if "먹었어서" not in utterance:
-            return LanguageAnalysis(utterance=utterance, errors=[], overall_feedback="자연스럽습니다.")
-        return LanguageAnalysis(
-            utterance=utterance,
-            errors=[LanguageError(expression="먹었어서", category=ErrorCategory.CONNECTIVE_ENDING,
-                                  judgment=Judgment.LESS_NATURAL, explanation="문맥상 다른 연결도 가능해요.",
-                                  suggestion="먹어서", confidence=0.86)],
-            overall_feedback="연결 표현을 살펴보세요.",
-        )
+def test_acceptable_expression_is_shown_but_not_corrected(tmp_path):
+    pipeline, _, _ = make_pipeline(tmp_path)
+    findings = pipeline.run("tester", SENTENCE).as_payload({})["findings"]
+    casual = next(f for f in findings if f["expression"] == "근데")
+    assert casual["judgment"] == "acceptable" and not casual["actionable"]
+    assert casual["evidence"] == [] and casual["record"] is None
 
 
-class FakeGenerator:
-    def respond(self, context: dict) -> TutorResponse:
-        feedback = FeedbackOutput(
-            overall="문맥에 맞는 연결을 연습해 보세요.",
-            items=[FeedbackItem(error_index=0, correction="이미 먹어서", explanation="원인을 간결하게 연결할 수 있어요.",
-                                natural_alternative="밥을 이미 먹었기 때문에 카페에 갔어요.",
-                                personalized_insight="이전에도 연결어미를 연습했어요.",
-                                evidence_ids=[context["evidence"]["0"][0]["id"]])],
-            profile_updates=[ProfileUpdateProposal(error_index=0, error_type="connective_ending",
-                                                   expression="먹었어서", suggestion="먹어서")],
-        )
-        question = PracticeQuestion(
-            question="더 자연스러운 연결은?", choices=["먹었어서", "먹어서", "먹는데"],
-            answer_index=1, explanation="이 문맥에서는 원인을 연결합니다.", target_category="connective_ending",
-        )
-        return TutorResponse(feedback=feedback, question=question)
-
-def make_pipeline(tmp_path: Path) -> tuple[TutorPipeline, LearnerRepository]:
-    repository = LearnerRepository(connect(tmp_path / "tutor.sqlite3"))
-    repository.ensure_learner("test_user")
-    repository.seed_demo_history("test_user")
-    retriever = Retriever(load_chunks(ROOT / "data" / "grammar.json"), FakeEmbedder())
-    return TutorPipeline(repository, FakeAnalyzer(), retriever, FakeGenerator()), repository
+def test_clean_sentence_skips_search_and_second_model_call(tmp_path):
+    pipeline, repository, model = make_pipeline(tmp_path)
+    result = pipeline.run("tester", "어제 친구와 영화를 봤어요.")
+    statuses = {s["key"]: s["status"] for s in result.trace.steps}
+    assert statuses["retrieval"] == statuses["generation"] == "skipped"
+    assert result.question is None and model.calls == ["AnalysisOutput"]
+    assert repository.stats("tester") == {"sentences": 1, "corrections": 0,
+                                           "practice_total": 0, "practice_correct": 0}
 
 
-def test_full_workflow_updates_profile_and_exposes_evidence(tmp_path: Path) -> None:
-    pipeline, repository = make_pipeline(tmp_path)
-    before = repository.get_profile("test_user").recent_patterns["connective_ending"]
-    result = pipeline.run("test_user", "이미 먹었어서 카페에 갔어요.")
-    assert result.analysis.errors[0].judgment == Judgment.LESS_NATURAL
-    assert result.evidence[0][0].chunk.document_id == "ending-eoseo"
-    assert result.tool_results[0].status == "updated"
-    assert repository.get_profile("test_user").recent_patterns["connective_ending"] == before + 1
-    assert len(result.practice.questions) == 1
-    assert "Augmented Context" in [step["name"] for step in result.trace.steps]
+def test_repeat_is_counted_from_saved_history(tmp_path):
+    pipeline, _, _ = make_pipeline(tmp_path)
+    pipeline.run("tester", SENTENCE)
+    second = pipeline.run("tester", "오늘도 책이 읽었어요.")
+    assert second.seen_counts == {0: 2}
+    context = next(s for s in second.trace.steps if s["key"] == "generation")["data"]["context"]
+    assert context["evidence"]["0"][0]["times_recorded"] == 1
 
 
-def test_no_false_positive_skips_generation_and_update(tmp_path: Path) -> None:
-    pipeline, repository = make_pipeline(tmp_path)
-    result = pipeline.run("test_user", "어제 친구와 영화를 봤어요.")
-    assert result.analysis.errors == []
-    assert result.practice.questions == []
-    assert result.tool_results == []
-    assert len(repository.recent_history("test_user")) == 5
+def test_bad_candidates_are_dropped_not_fatal():
+    output = AnalysisOutput(summary="확인", candidates=[
+        Candidate(expression="없는말", occurrence=1, category="word", judgment="error",
+                  suggestion="다른말", explanation="x", confidence=0.9),
+        Candidate(expression="읽었어요", occurrence=1, category="tense", judgment="error",
+                  suggestion="읽었어요", explanation="x", confidence=0.9),
+        Candidate(expression="책이", occurrence=1, category="particle", judgment="error",
+                  suggestion="책을", explanation="x", confidence=0.5),
+        Candidate(expression="책이 읽었어요", occurrence=1, category="particle", judgment="error",
+                  suggestion="책을 읽었어요", explanation="x", confidence=0.9),
+    ])
+    analysis = build_analysis("어제 책이 읽었어요.", output, 0.6)
+    assert [d["reason"] for d in analysis.dropped] == ["원문에 없는 표현", "바꿀 내용이 없는 교정", "다른 후보와 겹침"]
+    assert len(analysis.findings) == 1 and not analysis.findings[0].actionable  # 확신도 0.5 < 0.6
 
 
-def test_invalid_tool_proposal_cannot_write(tmp_path: Path) -> None:
-    pipeline, repository = make_pipeline(tmp_path)
-    analysis = FakeAnalyzer().analyze("이미 먹었어서 갔어요.")
-    evidence = pipeline.retriever.retrieve("연결 어서", "connective_ending")
-    bad = ProfileUpdateProposal(error_index=0, error_type="tense", expression="먹었어서", suggestion="먹어서")
-    before = repository.get_profile("test_user").recent_patterns["connective_ending"]
-    result = pipeline.tools.update_many(learner_id="test_user", request_id="fixed-id",
-                                        proposals=[bad], analysis=analysis, evidence={0: evidence})
-    assert result[0].status == "rejected"
-    assert repository.get_profile("test_user").recent_patterns["connective_ending"] == before
+def test_tool_proposals_are_validated_before_saving(tmp_path):
+    def tutor(context):
+        output = tutor_for(context)
+        output.tool_calls = [
+            ProfileUpdateCall(index=0, grammar_id="s-doe", reason="근거에 없는 자료"),
+            ProfileUpdateCall(index=7, grammar_id="p-object", reason="없는 번호"),
+            ProfileUpdateCall(index=0, grammar_id="p-object", reason="정상"),
+            ProfileUpdateCall(index=0, grammar_id="p-object", reason="중복"),
+        ]
+        return output
+
+    pipeline, repository, _ = make_pipeline(tmp_path, FakeModel(tutor=tutor))
+    result = pipeline.run("tester", SENTENCE)
+    assert [(r.status, r.reason) for r in result.tool_results] == [
+        ("rejected", "검색된 근거에 없는 문법 자료"), ("rejected", "없는 표현 번호"),
+        ("saved", "학습 기록에 저장함"), ("rejected", "같은 표현을 두 번 제안함")]
+    assert repository.stats("tester")["corrections"] == 1
 
 
-def test_empty_input_returns_trace(tmp_path: Path) -> None:
-    pipeline, _ = make_pipeline(tmp_path)
+def test_low_confidence_gets_feedback_but_no_record(tmp_path):
+    def analysis(utterance):
+        output = analysis_for(utterance)
+        output.candidates[0].confidence = 0.7
+        return output
+
+    pipeline, repository, _ = make_pipeline(tmp_path, FakeModel(analysis=analysis))
+    result = pipeline.run("tester", SENTENCE)
+    assert result.items[0].explanation
+    assert result.tool_results[0].reason == "확신도가 기록 기준보다 낮음"
+    assert repository.stats("tester")["corrections"] == 0
+
+
+def test_no_evidence_above_threshold_means_no_citation_and_no_record(tmp_path):
+    pipeline, repository, _ = make_pipeline(tmp_path, evidence_min_score=0.99)
+    result = pipeline.run("tester", SENTENCE)
+    retrieval = next(s for s in result.trace.steps if s["key"] == "retrieval")["data"][0]
+    assert retrieval["matches"] == [] and retrieval["rejected"][0]["id"]
+    assert result.evidence == {0: []} and result.tool_results == []
+    assert result.question.grammar_id == ""
+    assert repository.stats("tester")["corrections"] == 0
+
+
+def test_sloppy_model_output_is_repaired(tmp_path):
+    def tutor(context):
+        output = tutor_for(context)
+        output.items[0].index = 5                     # 없는 번호
+        output.question.grammar_id = "made-up"        # 검색되지 않은 자료
+        return output
+
+    pipeline, _, _ = make_pipeline(tmp_path, FakeModel(tutor=tutor))
+    result = pipeline.run("tester", SENTENCE)
+    repairs = next(s for s in result.trace.steps if s["key"] == "generation")["data"]["repairs"]
+    assert len(repairs) == 3
+    assert result.items[0].explanation == "'읽다'의 대상에는 '을'을 써요."  # 분석 단계의 설명으로 대체
+    assert result.question.grammar_id == ""
+
+
+def test_model_failure_is_reported_with_trace(tmp_path):
+    def broken(_):
+        raise ModelError("모델을 2번 호출했지만 쓸 수 있는 응답을 받지 못했습니다 (ValidationError)")
+
+    events = []
+    pipeline, repository, _ = make_pipeline(tmp_path, FakeModel(analysis=broken))
     with pytest.raises(PipelineFailure) as failure:
-        pipeline.run("test_user", "  ")
-    assert failure.value.trace.steps[0]["status"] == "failed"
+        pipeline.run("tester", SENTENCE, events.append)
+    steps = failure.value.trace.steps
+    assert [(s["key"], s["status"]) for s in steps] == [("input", "ok"), ("profile", "ok"), ("analysis", "failed")]
+    assert "2번 호출" in steps[-1]["message"]
+    assert events[0] == {"type": "start", "key": "input"} and events[-1]["step"]["status"] == "failed"
+    assert repository.stats("tester")["sentences"] == 0
 
 
-def test_batch_update_is_atomic_on_database_error(tmp_path: Path) -> None:
-    import sqlite3
-
-    _, repository = make_pipeline(tmp_path)
-    repository.connection.execute(
-        "CREATE TRIGGER reject_test BEFORE INSERT ON error_history "
-        "WHEN NEW.expression = 'fail' BEGIN SELECT RAISE(ABORT, 'test failure'); END"
-    )
-    before = len(repository.recent_history("test_user", 100))
-    rows = [
-        ("test_user", "atomic", 0, "first", "tense", "fixed", 0.9),
-        ("test_user", "atomic", 1, "fail", "tense", "fixed", 0.9),
-    ]
-    with pytest.raises(sqlite3.DatabaseError):
-        repository.record_errors_batch(rows)
-    assert len(repository.recent_history("test_user", 100)) == before
+def test_empty_and_too_long_input(tmp_path):
+    pipeline, _, _ = make_pipeline(tmp_path)
+    for text in ("   ", "가" * 501):
+        with pytest.raises(PipelineFailure) as failure:
+            pipeline.run("tester", text)
+        assert failure.value.trace.steps[0]["status"] == "failed"
 
 
-def test_tool_update_is_idempotent(tmp_path: Path) -> None:
-    pipeline, repository = make_pipeline(tmp_path)
-    analysis = FakeAnalyzer().analyze("이미 먹었어서 갔어요.")
-    evidence = pipeline.retriever.retrieve("연결 어서", "connective_ending")
-    proposal = ProfileUpdateProposal(error_index=0, error_type="connective_ending",
-                                     expression="먹었어서", suggestion="먹어서")
-    before = repository.get_profile("test_user").recent_patterns["connective_ending"]
-    first = pipeline.tools.update_many(learner_id="test_user", request_id="same-request",
-                                       proposals=[proposal], analysis=analysis, evidence={0: evidence})
-    second = pipeline.tools.update_many(learner_id="test_user", request_id="same-request",
-                                        proposals=[proposal], analysis=analysis, evidence={0: evidence})
-    assert first[0].status == "updated"
-    assert second[0].status == "already_recorded"
-    assert repository.get_profile("test_user").recent_patterns["connective_ending"] == before + 1
+def test_practice_answer_is_checked_on_the_server_once(tmp_path):
+    pipeline, repository, _ = make_pipeline(tmp_path)
+    request_id = pipeline.run("tester", SENTENCE).trace.request_id
+    assert repository.answer_practice("tester", request_id, 9) is None
+    assert repository.answer_practice("someone-else", request_id, 1) is None
+    first = repository.answer_practice("tester", request_id, 0)
+    assert first == {"correct": False, "answer_index": 1, "explanation": "'보다'의 대상이라서 '를'이에요."}
+    repository.answer_practice("tester", request_id, 1)  # 두 번째 답은 기록을 바꾸지 않는다
+    stats = repository.stats("tester")
+    assert (stats["practice_total"], stats["practice_correct"]) == (1, 0)
+    assert repository.history("tester")[0]["practice_correct"] == 0
 
 
-def test_uncited_retrieval_does_not_update_profile(tmp_path: Path) -> None:
-    pipeline, repository = make_pipeline(tmp_path)
-
-    class UncitedGenerator(FakeGenerator):
-        def respond(self, context: dict) -> TutorResponse:
-            output = super().respond(context)
-            output.feedback.items[0].evidence_ids = []
-            return output
-
-    pipeline.generator = UncitedGenerator()
-    before = repository.get_profile("test_user").recent_patterns["connective_ending"]
-    result = pipeline.run("test_user", "이미 먹었어서 카페에 갔어요.")
-    assert result.tool_results[0].status == "rejected"
-    assert repository.get_profile("test_user").recent_patterns["connective_ending"] == before
-
-
-def test_analyzer_ignores_unchanged_correction() -> None:
-    class NoOpModel:
-        def parse(self, system, payload, schema):
-            return LanguageAnalysis(
-                utterance=payload["utterance"],
-                errors=[LanguageError(expression="읽었어요", category=ErrorCategory.GRAMMAR,
-                                      judgment=Judgment.ERROR, explanation="검토 필요",
-                                      suggestion="읽었어요", confidence=0.9)],
-                overall_feedback="다시 살펴봐요.",
-            )
-
-    result = Analyzer(NoOpModel()).analyze("어제 책을 읽었어요.")
-    assert result.errors == []
+def test_text_helpers():
+    text = "저는 책이 좋아요. 그래서 책이 읽었어요."
+    assert locate(text, "책이", 2) == text.rindex("책이")
+    assert locate(text, "책이", 5) == text.index("책이")
+    assert sentence_around(text, text.rindex("책이")) == "그래서 책이 읽었어요."
+    analysis = build_analysis(text, AnalysisOutput(summary="s", candidates=[
+        Candidate(expression="책이", occurrence=2, category="particle", judgment="error",
+                  suggestion="책을", explanation="x", confidence=0.9),
+        Candidate(expression="좋아요", occurrence=1, category="word", judgment="less_natural",
+                  suggestion="좋아해요", explanation="x", confidence=0.9)]), 0.6)
+    assert apply_corrections(text, analysis.findings) == "저는 책이 좋아요. 그래서 책을 읽었어요."
+    assert build_query(text, analysis.findings[1]) == "조사 | 책이 → 책을 | 문장: 그래서 책이 읽었어요."
