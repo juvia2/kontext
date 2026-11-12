@@ -4,8 +4,8 @@ import pytest
 from fakes import FakeModel, analysis_for, make_pipeline, tutor_for
 
 from src.llm import ModelError, build_analysis, locate
-from src.pipeline import PipelineFailure, apply_corrections, build_query, sentence_around
-from src.schemas import AnalysisOutput, Candidate, ProfileUpdateCall
+from src.pipeline import PipelineFailure, apply_corrections, build_query, fix_particle_answer, sentence_around
+from src.schemas import AnalysisOutput, Candidate, PracticeQuestion, ProfileUpdateCall
 
 SENTENCE = "어제 책이 읽었어요. 근데 정말 재미있었어요."
 
@@ -175,3 +175,25 @@ def test_text_helpers():
                   suggestion="좋아해요", explanation="x", confidence=0.9)]), 0.6)
     assert apply_corrections(text, analysis.findings) == "저는 책이 좋아요. 그래서 책을 읽었어요."
     assert build_query(text, analysis.findings[1]) == "조사 | 책이 → 책을 | 문장: 그래서 책이 읽었어요."
+
+
+def _question(prompt, choices, answer):
+    return PracticeQuestion(prompt=prompt, choices=choices, answer_index=answer, explanation="x", grammar_id="")
+
+
+@pytest.mark.parametrize("prompt, choices, answer, fixed_choices, fixed_answer", [
+    # 실제 배포에서 나온 문제: '영화'는 받침이 없는데 '을'을 정답으로 냈다 → 정답 선택지를 '를'로 바꾼다
+    ("어제 영화( ) 봤어요.", ["이", "가", "을", "는"], 2, ["이", "가", "를", "는"], 2),
+    # 맞는 형태가 오답 선택지에 있으면 정답 번호를 그쪽으로 옮긴다
+    ("어제 영화 ___ 봤어요.", ["을", "를", "에"], 0, ["을", "를", "에"], 1),
+    # 받침이 있으면 '을', ㄹ 받침 뒤 '으로'는 '로'
+    ("책( ) 읽어요.", ["를", "이", "에"], 0, ["을", "이", "에"], 0),
+    ("서울( ) 가요.", ["으로", "에서", "을"], 0, ["로", "에서", "을"], 0),
+    # 이미 맞으면 그대로
+    ("어제 영화( ) 봤어요.", ["이", "를", "에"], 1, ["이", "를", "에"], 1),
+    ("빈칸 없는 문제", ["을", "를", "에"], 0, ["을", "를", "에"], 0),
+])
+def test_particle_answer_matches_the_noun_before_the_blank(prompt, choices, answer, fixed_choices, fixed_answer):
+    fixed, note = fix_particle_answer(_question(prompt, choices, answer))
+    assert (fixed.choices, fixed.answer_index) == (fixed_choices, fixed_answer)
+    assert (note is None) == (choices == fixed_choices and answer == fixed_answer)

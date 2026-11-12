@@ -93,7 +93,7 @@ TUTOR_INSTRUCTIONS = """당신은 한국어 교사입니다. 입력 JSON은 자�
 1. items: findings마다 하나씩, 같은 index로 씁니다. explanation은 learner.level에 맞는 쉬운 한국어 두세 문장입니다. evidence에 있는 규칙과 예문을 근거로 설명하고, 실제로 사용한 자료의 id를 evidence_ids에 적습니다. 자료가 설명을 뒷받침하지 않으면 evidence_ids를 비우고 조심스럽게 말합니다. 자료에 없는 규칙을 지어내지 않습니다. judgment가 less_natural이면 틀린 것이 아니라는 점을 분명히 합니다.
 2. overall: 격려를 담은 한 문장 요약입니다.
 3. tool_calls: update_learner_profile 호출 제안입니다. confidence가 record_min_confidence 이상이고, evidence에 그 실수를 설명하는 자료가 있을 때만 제안합니다. grammar_id는 그 finding의 evidence에 있는 id 중에서 고릅니다. 다시 연습할 필요가 없는 단순 오타는 제안하지 않습니다. 앱이 제안을 검사한 뒤 저장 여부를 결정합니다.
-4. question: 객관식 문제 하나입니다. times_recorded가 가장 큰 자료(반복된 실수)를 먼저 다루고, 없으면 첫 번째 error를 다룹니다. 원문과 다른 새 문장으로 만들고 정답은 하나뿐이어야 합니다. 문맥에 따라 둘 다 맞을 수 있는 선택지는 넣지 않습니다. choices는 3~4개이고 answer_index는 0부터 셉니다. grammar_id에는 문제가 다루는 자료의 id를 적습니다."""
+4. question: 객관식 문제 하나입니다. times_recorded가 가장 큰 자료(반복된 실수)를 먼저 다루고, 없으면 첫 번째 error를 다룹니다. 원문과 다른 새 문장으로 만들고 정답은 하나뿐이어야 합니다. 문맥에 따라 둘 다 맞을 수 있는 선택지는 넣지 않습니다. choices는 3~4개이고 answer_index는 0부터 셉니다. grammar_id에는 문제가 다루는 자료의 id를 적습니다. 조사 빈칸 문제는 빈칸 바로 앞 낱말의 받침에 맞는 형태(예: 영화를, 책을)를 정답으로 합니다."""
 
 
 # 모델에게 보여 주는 도구 정의. 실제 실행 코드는 src/learner.py의 ProfileTools에 있다.

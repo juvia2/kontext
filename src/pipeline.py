@@ -145,6 +145,32 @@ def apply_corrections(text: str, findings: list[Finding]) -> str:
     return text
 
 
+# (받침 뒤, 받침 없음 뒤). '으로/로'는 ㄹ 받침 뒤에도 '로'를 쓴다.
+PARTICLE_PAIRS = [("을", "를"), ("이", "가"), ("은", "는"), ("과", "와"), ("으로", "로")]
+BLANK = re.compile(r"\(\s*\)|_{2,}")
+
+
+def fix_particle_answer(question: PracticeQuestion) -> tuple[PracticeQuestion, str | None]:
+    """조사 빈칸 문제의 정답이 빈칸 앞 낱말의 받침과 맞는지 코드가 확인하고, 틀리면 고친다."""
+    blank = BLANK.search(question.prompt)
+    answer = question.choices[question.answer_index].strip()
+    pair = next((p for p in PARTICLE_PAIRS if answer in p), None)
+    before = question.prompt[:blank.start()].rstrip() if blank else ""
+    if pair is None or not before or not "가" <= before[-1] <= "힣":
+        return question, None
+    final = (ord(before[-1]) - ord("가")) % 28  # 0이면 받침 없음, 8이면 ㄹ
+    right = pair[1] if final == 0 or (pair[0] == "으로" and final == 8) else pair[0]
+    if answer == right:
+        return question, None
+    choices = [c.strip() for c in question.choices]
+    if right in choices:
+        fixed = question.model_copy(update={"answer_index": choices.index(right)})
+    else:
+        choices[question.answer_index] = right
+        fixed = question.model_copy(update={"choices": choices})
+    return fixed, f"문제 정답 '{answer}'이(가) '{before[-1]}' 뒤에 맞지 않아 '{right}'(으)로 고침"
+
+
 def repair_output(output: TutorOutput, targets: list[Finding],
                   evidence: dict[int, list[Match]]) -> tuple[dict[int, FeedbackItem], PracticeQuestion, list[str]]:
     """모델 출력이 조금 어긋나도 요청을 실패시키지 않고 바로잡는다. 바로잡은 내용은 기록에 남긴다."""
@@ -169,6 +195,9 @@ def repair_output(output: TutorOutput, targets: list[Finding],
         if question.grammar_id:
             notes.append("문제의 문법 자료 id가 검색 결과에 없어 비움")
         question = question.model_copy(update={"grammar_id": ""})
+    question, note = fix_particle_answer(question)
+    if note:
+        notes.append(note)
     return items, question, notes
 
 
