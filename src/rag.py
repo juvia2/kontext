@@ -120,7 +120,12 @@ class GeminiEmbedder:
             contents = [types.Content(parts=[types.Part.from_text(text=text)]) for text in batch]
             response = self.client.models.embed_content(
                 model=self.model, contents=contents,
-                config=types.EmbedContentConfig(output_dimensionality=768),
+                # 무료 등급은 분당 100텍스트라 청크 146개를 한 번에 못 넣는다. 429면 분 단위로 기다렸다 다시 보낸다.
+                config=types.EmbedContentConfig(
+                    output_dimensionality=768,
+                    http_options=types.HttpOptions(retry_options=types.HttpRetryOptions(
+                        attempts=3, initial_delay=30, max_delay=60, http_status_codes=[429, 503])),
+                ),
             )
             embeddings = response.embeddings or []
             if len(embeddings) != len(batch) or any(item.values is None for item in embeddings):
