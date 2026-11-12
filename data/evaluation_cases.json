@@ -51,5 +51,9 @@
  {"id": "c05", "utterance": "주말에 친구를 만나서 같이 저녁을 먹을 거예요.", "expect": []},
  {"id": "c06", "utterance": "선생님께서 교실에 계세요. 제가 찾아갈게요.", "expect": []},
  {"id": "c07", "utterance": "저는 서울에서 살아요. 회사는 집에서 가까워요.", "expect": []},
- {"id": "c08", "utterance": "이거 뭐예요? 좀 비싼 것 같아요.", "expect": [], "note": "구어 준말 '이거, 뭐, 좀'을 잡으면 오탐."}
+ {"id": "c08", "utterance": "이거 뭐예요? 좀 비싼 것 같아요.", "expect": [], "note": "구어 준말 '이거, 뭐, 좀'을 잡으면 오탐."},
+ {"id": "x01", "utterance": "주말에 친구와 영화이 봤어요.", "expect": [{"expression": "영화이", "category": "particle", "grammar_id": "p-object"}]},
+ {"id": "x02", "utterance": "주말에 친구와 같이 도서관에 공부했어요.", "expect": [{"expression": "도서관에", "category": "particle", "grammar_id": "p-place"}]},
+ {"id": "x03", "utterance": "지난 주말에 친구와 영화를 봐요.", "expect": [{"expression": "봐요", "category": "tense", "grammar_id": "t-past"}]},
+ {"id": "x04", "utterance": "주말에 할머니와 같이 공원에서 자요.", "expect": [{"expression": "자요", "category": "honorific", "grammar_id": "h-special"}], "optional": ["할머니와"]}
 ]

@@ -123,18 +123,15 @@ class PipelineResult:
                 "tool_results": [r.as_dict() for r in self.tool_results], "trace": self.trace.as_dict()}
 
 
-def sentence_around(text: str, position: int) -> str:
-    """position이 들어 있는 문장 하나."""
-    start = max((m.end() for m in re.finditer(r"[.!?\n]", text[:position])), default=0)
-    end_match = re.search(r"[.!?\n]", text[position:])
-    end = position + end_match.end() if end_match else len(text)
-    return text[start:end].strip()
-
-
 def build_query(text: str, finding: Finding) -> str:
-    """검색 질문은 모델의 설명이 아니라 학습자의 표현과 그 문장으로 만든다."""
-    return (f"{CATEGORY_LABELS[finding.category]} | {finding.expression} → {finding.suggestion} | "
-            f"문장: {sentence_around(text, finding.start)}")
+    """검색 질문은 모델의 설명이 아니라 학습자의 표현과 바로 뒤 어절로 만든다.
+
+    문장 전체를 넣으면 '친구와', '주말에'처럼 고친 곳과 무관한 부분이 다른 자료의 예문과 겹쳐
+    맞는 자료가 상위에서 밀린다. 뒤 어절(대개 서술어)은 조사·어미 판단에 필요해서 남긴다.
+    """
+    following = re.match(r"\s+([^\s.!?]+)", text[finding.end:])
+    context = finding.expression + (f" {following.group(1)}" if following else "")
+    return f"{CATEGORY_LABELS[finding.category]} | {finding.expression} → {finding.suggestion} | {context}"
 
 
 def apply_corrections(text: str, findings: list[Finding]) -> str:

@@ -4,7 +4,7 @@ import pytest
 from fakes import FakeModel, analysis_for, make_pipeline, tutor_for
 
 from src.llm import ModelError, build_analysis, locate
-from src.pipeline import PipelineFailure, apply_corrections, build_query, fix_particle_answer, sentence_around
+from src.pipeline import PipelineFailure, apply_corrections, build_query, fix_particle_answer
 from src.schemas import AnalysisOutput, Candidate, PracticeQuestion, ProfileUpdateCall
 
 SENTENCE = "어제 책이 읽었어요. 근데 정말 재미있었어요."
@@ -167,14 +167,15 @@ def test_text_helpers():
     text = "저는 책이 좋아요. 그래서 책이 읽었어요."
     assert locate(text, "책이", 2) == text.rindex("책이")
     assert locate(text, "책이", 5) == text.index("책이")
-    assert sentence_around(text, text.rindex("책이")) == "그래서 책이 읽었어요."
     analysis = build_analysis(text, AnalysisOutput(summary="s", candidates=[
         Candidate(expression="책이", occurrence=2, category="particle", judgment="error",
                   suggestion="책을", explanation="x", confidence=0.9),
         Candidate(expression="좋아요", occurrence=1, category="word", judgment="less_natural",
                   suggestion="좋아해요", explanation="x", confidence=0.9)]), 0.6)
     assert apply_corrections(text, analysis.findings) == "저는 책이 좋아요. 그래서 책을 읽었어요."
-    assert build_query(text, analysis.findings[1]) == "조사 | 책이 → 책을 | 문장: 그래서 책이 읽었어요."
+    # 검색 질문은 표현 + 다음 어절만. 문장 전체를 넣으면 나머지 부분이 다른 자료의 예문과 겹쳐 순위를 흔든다.
+    assert build_query(text, analysis.findings[1]) == "조사 | 책이 → 책을 | 책이 읽었어요"
+    assert build_query(text, analysis.findings[0]).endswith("| 좋아요")  # 문장 끝이면 다음 문장으로 넘어가지 않는다
 
 
 def _question(prompt, choices, answer):
