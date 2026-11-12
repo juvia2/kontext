@@ -32,7 +32,7 @@ Gemini 내부의 토큰화, Attention, Transformer 연산은 API 뒤에 있고 �
 | 01 입력 확인 | `TutorPipeline._validate()` | 문장 → 앞뒤 공백을 뗀 문장. 비었거나 500자를 넘으면 실패 |
 | 02 학습 기록 읽기 | `LearnerRepository.get_profile()` | 학습자 ID → 수준, 모국어, 최근 30건의 범주별·문법별 횟수 |
 | 03 문장 분석 | `Analyzer.analyze()` → `build_analysis()` | 문장, 수준 → `Finding` 목록. `책이→책을`(오류, 0.95), `근데`(괜찮음) 등 |
-| 04 문법 근거 검색 | `build_query()` → `Retriever.search_many()` | `조사 \| 책이 → 책을 \| 문장: 어제 책이 읽었어요.` → 문법 자료 `p-object`와 유사도 |
+| 04 문법 근거 검색 | `build_query()` → `Retriever.search_many()` | `조사 \| 책이 → 책을 \| 책이 읽었어요 \| 문장: 어제 책이 읽었어요.` → 문법 자료 `p-object`와 유사도 |
 | 05 피드백과 문제 생성 | `_context()` → `Generator.respond()` → `repair_output()` | 원문 + 분석 + 기록 + 근거 → 설명, 문제 1개, `update_learner_profile` 호출 제안 |
 | 06 검증 후 저장 | `ProfileTools.execute()` | 제안 → 저장함 / 저장 안 함(이유) |
 
@@ -66,7 +66,7 @@ Gemini 내부의 토큰화, Attention, Transformer 연산은 API 뒤에 있고 �
 
 `Retriever.search_many()`는 모든 청크와 코사인 유사도를 계산하고(같은 범주면 가산점 0.03), 항목별 최고 점수로 순위를 매겨 기준을 넘은 상위 2건을 돌려줍니다. 범주로 미리 거르지 않으므로 모델이 범주를 잘못 붙여도 맞는 자료를 찾을 수 있습니다. 문서 임베딩은 한 번 계산해 `data/.cache/`에 저장합니다. 별도 Vector DB는 없습니다.
 
-검색 질문은 모델의 설명이 아니라 학습자의 표현과 그 문장으로 만듭니다(`build_query()`).
+검색 질문은 모델의 설명이 아니라 학습자의 표현으로 만듭니다(`build_query()`). 표현과 바로 뒤 어절을 앞에 두고 그 문장을 덧붙입니다. 뒤 어절은 조사·어미 판단의 단서이고, 문장은 '할머니와 … 자요'처럼 앞쪽에 있는 단서를 남깁니다.
 
 ### `src/learner.py` — 모델 밖의 상태
 
