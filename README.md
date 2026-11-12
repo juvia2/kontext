@@ -62,6 +62,7 @@ src/schemas.py          모델과 주고받는 데이터의 모양
 src/llm.py              Gemini 호출, 지시문, 분석 후보 검사
 src/rag.py              문법 자료 청킹, 임베딩, 검색
 src/learner.py          SQLite 학습 기록, 도구 호출 검증과 실행
+src/particles.py        받침에 따른 조사 형태 검사
 src/pipeline.py         여섯 단계의 순서와 실행 기록
 data/grammar.json       문법 자료 70건 (규칙, 예문, 오류 사례 191쌍, 구분 기준)
 data/evaluation_cases.json  평가 문장 57개

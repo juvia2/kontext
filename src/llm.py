@@ -12,7 +12,8 @@ from typing import Any
 from pydantic import BaseModel
 
 from src.config import Settings
-from src.schemas import Analysis, AnalysisOutput, Finding, Judgment, ProfileUpdateCall, TutorOutput
+from src.particles import fix_particle_form
+from src.schemas import Analysis, AnalysisOutput, Category, Finding, Judgment, ProfileUpdateCall, TutorOutput
 
 
 class ModelError(RuntimeError):
@@ -133,6 +134,12 @@ def build_analysis(utterance: str, output: AnalysisOutput, min_confidence: float
             dropped.append({"expression": candidate.expression, "reason": "다른 후보와 겹침"})
         else:
             kept.append((start, candidate))
+    fixes: list[str] = []
+    for _, c in kept:
+        fixed = fix_particle_form(c.expression, c.suggestion) if c.category == Category.PARTICLE else c.suggestion
+        if fixed != c.suggestion:
+            fixes.append(f"'{c.suggestion}'의 조사가 받침에 맞지 않아 '{fixed}'(으)로 고침")
+            c.suggestion = fixed
     findings = [
         Finding(
             index=index, start=start, end=start + len(c.expression),
@@ -143,7 +150,7 @@ def build_analysis(utterance: str, output: AnalysisOutput, min_confidence: float
         for index, (start, c) in enumerate(sorted(kept, key=lambda pair: pair[0]))
     ]
     return Analysis(utterance=utterance, findings=findings, summary=output.summary,
-                    dropped=dropped, attempts=attempts)
+                    dropped=dropped, attempts=attempts, fixes=fixes)
 
 
 class Analyzer:

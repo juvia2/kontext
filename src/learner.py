@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from src.config import Settings
+from src.particles import particle_conflict
 from src.rag import Match
 from src.schemas import Analysis, PracticeQuestion, ProfileUpdateCall
 
@@ -207,6 +208,8 @@ class ProfileTools:
             return "확신도가 기록 기준보다 낮음"
         if call.grammar_id not in {match.entry.id for match in evidence.get(call.index, [])}:
             return "검색된 근거에 없는 문법 자료"
+        if particle_conflict(finding.expression, finding.suggestion, call.grammar_id):
+            return "교정한 조사와 맞지 않는 문법 자료"
         if call.index in seen:
             return "같은 표현을 두 번 제안함"
         return None

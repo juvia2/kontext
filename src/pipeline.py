@@ -15,6 +15,7 @@ from uuid import uuid4
 from src.config import ROOT, Settings
 from src.learner import LearnerProfile, LearnerRepository, ProfileTools, ToolResult
 from src.llm import TOOL_SPECS, Analyzer, GeminiClient, Generator, ModelError
+from src.particles import PARTICLE_PAIRS, particle_conflict, right_form
 from src.rag import GeminiEmbedder, Match, Retriever, SearchResult, load_entries
 from src.schemas import (CATEGORY_LABELS, JUDGMENT_LABELS, Analysis, FeedbackItem, Finding, Judgment,
                          PracticeQuestion, TutorOutput)
@@ -152,8 +153,6 @@ def apply_corrections(text: str, findings: list[Finding]) -> str:
     return text
 
 
-# (받침 뒤, 받침 없음 뒤). '으로/로'는 ㄹ 받침 뒤에도 '로'를 쓴다.
-PARTICLE_PAIRS = [("을", "를"), ("이", "가"), ("은", "는"), ("과", "와"), ("으로", "로")]
 BLANK = re.compile(r"\(\s*\)|_{2,}")
 
 
@@ -163,11 +162,8 @@ def fix_particle_answer(question: PracticeQuestion) -> tuple[PracticeQuestion, s
     answer = question.choices[question.answer_index].strip()
     pair = next((p for p in PARTICLE_PAIRS if answer in p), None)
     before = question.prompt[:blank.start()].rstrip() if blank else ""
-    if pair is None or not before or not "가" <= before[-1] <= "힣":
-        return question, None
-    final = (ord(before[-1]) - ord("가")) % 28  # 0이면 받침 없음, 8이면 ㄹ
-    right = pair[1] if final == 0 or (pair[0] == "으로" and final == 8) else pair[0]
-    if answer == right:
+    right = right_form(before[-1], pair) if pair and before else None
+    if right is None or answer == right:
         return question, None
     choices = [c.strip() for c in question.choices]
     if right in choices:
@@ -192,6 +188,11 @@ def repair_output(output: TutorOutput, targets: list[Finding],
         kept = [source for source in item.evidence_ids if source in retrieved]
         if len(kept) != len(item.evidence_ids):
             notes.append(f"{item.index}번 피드백에서 검색되지 않은 근거 인용을 지움")
+        finding = allowed[item.index]
+        conflicting = [s for s in kept if particle_conflict(finding.expression, finding.suggestion, s)]
+        if conflicting:
+            notes.append(f"{item.index}번 피드백에서 고친 조사와 맞지 않는 근거 {conflicting}를 지움")
+            kept = [s for s in kept if s not in conflicting]
         items[item.index] = FeedbackItem(index=item.index, explanation=item.explanation, evidence_ids=kept)
     for index, finding in allowed.items():
         if index not in items:

@@ -4,6 +4,7 @@ import pytest
 from fakes import FakeModel, analysis_for, make_pipeline, tutor_for
 
 from src.llm import ModelError, build_analysis, locate
+from src.particles import fix_particle_form, particle_conflict
 from src.pipeline import PipelineFailure, apply_corrections, build_query, fix_particle_answer, sentence_around
 from src.schemas import AnalysisOutput, Candidate, PracticeQuestion, ProfileUpdateCall
 
@@ -199,3 +200,65 @@ def test_particle_answer_matches_the_noun_before_the_blank(prompt, choices, answ
     fixed, note = fix_particle_answer(_question(prompt, choices, answer))
     assert (fixed.choices, fixed.answer_index) == (fixed_choices, fixed_answer)
     assert (note is None) == (choices == fixed_choices and answer == fixed_answer)
+
+
+@pytest.mark.parametrize("expression, suggestion, fixed", [
+    ("책이", "책를", "책을"),        # 받침 뒤에는 '을'
+    ("영화이", "영화을", "영화를"),
+    ("학교에", "학교으로", "학교로"),
+    ("서울에", "서울으로", "서울로"),  # ㄹ 받침 뒤에는 '로'
+    ("영화이", "영화를", "영화를"),  # 이미 맞음
+    ("사과", "사과를", "사과를"),
+    ("사과", "사과", "사과"),        # 낱말 끝 '과'는 조사가 아님
+    ("영화", "영화을", "영화를"),
+    ("먹어요", "먹었어요", "먹었어요"),  # 조사가 아님
+])
+def test_particle_form_in_suggestion_matches_final_consonant(expression, suggestion, fixed):
+    assert fix_particle_form(expression, suggestion) == fixed
+
+
+@pytest.mark.parametrize("expression, suggestion, grammar_id, conflict", [
+    ("영화이", "영화가", "p-object", True),    # 교정은 주어 조사인데 근거는 을/를
+    ("영화이", "영화를", "p-object", False),
+    ("영화이", "영화를", "p-subject", False),  # 원래 쓴 조사를 설명하는 자료는 허용
+    ("커피를", "커피가", "p-subject", False),
+    ("책이", "책은", "p-object", True),
+    ("도서관에", "도서관에서", "p-place", False),  # 받침 쌍 조사가 아니면 검사하지 않음
+    ("가고", "가서", "e-go", False),
+])
+def test_particle_conflict_between_correction_and_evidence(expression, suggestion, grammar_id, conflict):
+    assert particle_conflict(expression, suggestion, grammar_id) is conflict
+
+
+def test_wrong_particle_form_is_fixed_before_search(tmp_path):
+    def analysis(utterance):
+        output = analysis_for(utterance)
+        output.candidates[0].suggestion = "책를"
+        return output
+
+    pipeline, _, _ = make_pipeline(tmp_path, FakeModel(analysis=analysis))
+    result = pipeline.run("tester", SENTENCE)
+    assert result.analysis.findings[0].suggestion == "책을"
+    assert result.corrected.startswith("어제 책을")
+    assert result.analysis.fixes
+
+
+def test_evidence_that_contradicts_the_corrected_particle_is_not_cited_or_recorded(tmp_path):
+    def analysis(utterance):
+        output = analysis_for(utterance)
+        output.candidates[0].suggestion = "책은"
+        return output
+
+    def tutor(context):
+        output = tutor_for(context)
+        output.items[0].evidence_ids = ["p-object"]
+        output.tool_calls = [ProfileUpdateCall(index=0, grammar_id="p-object", reason="조사")]
+        return output
+
+    pipeline, repository, _ = make_pipeline(tmp_path, FakeModel(analysis=analysis, tutor=tutor), top_k=70,
+                                            evidence_min_score=0.0)
+    result = pipeline.run("tester", SENTENCE)
+    assert "p-object" in [m.entry.id for m in result.evidence[0]]
+    assert result.items[0].evidence_ids == []
+    assert result.tool_results[0].reason == "교정한 조사와 맞지 않는 문법 자료"
+    assert repository.stats("tester")["corrections"] == 0

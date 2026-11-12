@@ -121,3 +121,4 @@ class Analysis(BaseModel):
     summary: str
     dropped: list[dict]
     attempts: int = 1
+    fixes: list[str] = []  # 코드가 바로잡은 내용(예: 조사 형태)
