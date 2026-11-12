@@ -6,6 +6,8 @@
 
 > **버전 안내** 시리즈 8~12장(코드 읽기)은 `v1-blog` 태그의 코드를 설명합니다. `main`은 그 코드를 점검해 다시 만든 v2입니다. 무엇을 왜 바꿨는지는 [docs/DECISIONS.md](docs/DECISIONS.md)와 [docs/AUDIT-2026-11-11.md](docs/AUDIT-2026-11-11.md)에 있습니다.
 
+**공개 데모:** https://web-production-73f530f5.up.railway.app (Railway Free 플랜, 학습 기록은 재배포 때 초기화됩니다)
+
 코드 해설은 [CODE_GUIDE.md](CODE_GUIDE.md)에 있습니다.
 
 ## 한 문장이 거치는 여섯 단계
@@ -127,6 +129,8 @@ FastAPI 서버 하나가 화면과 API를 함께 제공합니다. `Procfile`이 
 5. Settings → Networking → Generate Domain으로 공개 주소를 만듭니다.
 
 Railway 체험 플랜의 외부 네트워크 제한은 Gemini 호출을 막을 수 있습니다. [플랜 안내](https://docs.railway.com/pricing/plans)를 확인하세요.
+
+현재 공개 데모는 GitHub 푸시로 자동 배포되지 않아 `railway up --service web`으로 올립니다. `.python-version`은 `3.12`로 둡니다. `3.12.0`처럼 정확한 패치 버전을 적으면 Railway 빌더가 설치에 실패했습니다.
 
 ## 데이터와 한계
 
