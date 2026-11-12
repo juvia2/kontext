@@ -37,6 +37,10 @@ if (!learnerId || !/^demo-[a-f0-9-]{32,36}$/.test(learnerId)) {
 const utterance = $('utterance');
 const analyzeButton = $('analyze');
 const layout = $('view-write');
+// 분석 과정 패널은 학습자 화면에 내보내지 않는다. 주소에 ?dev=1을 붙였을 때만 보인다(블로그·포트폴리오용).
+const DEV = new URLSearchParams(location.search).has('dev');
+const PROGRESS = { input: '문장을 읽는 중', profile: '문장을 읽는 중', analysis: '문장을 살펴보는 중', retrieval: '문법 자료를 찾는 중', generation: '설명을 쓰는 중', tools: '마무리하는 중' };
+let busyLabel = '';
 let configured = false;
 let busy = false;
 
@@ -48,7 +52,7 @@ function notice(message) {
 function refreshButton() {
   $('count').textContent = `${utterance.value.length} / ${utterance.maxLength}`;
   analyzeButton.disabled = busy || !configured || !utterance.value.trim();
-  analyzeButton.textContent = busy ? '살펴보는 중' : '살펴보기';
+  analyzeButton.textContent = busy ? (busyLabel || '살펴보는 중') : '살펴보기';
 }
 async function api(url, options) {
   const response = await fetch(url, options);
@@ -93,8 +97,8 @@ function resetProcess() {
     const detail = add(body, 'div', 'step-body');
     stepNodes[step.key] = { item, state, detail, meta: step };
   });
-  $('process').hidden = false;
-  layout.classList.add('with-process');
+  $('process').hidden = !DEV;
+  layout.classList.toggle('with-process', DEV);
 }
 function row(parent, left, right, rightClass) {
   const line = add(parent, 'div', 'step-row');
@@ -322,6 +326,7 @@ async function analyze() {
   layout.classList.remove('failed');
   layout.classList.add('loading');
   traceFindings = [];
+  busyLabel = '';
   resetProcess();
   let finished = false;
   try {
@@ -337,7 +342,7 @@ async function analyze() {
     const decoder = new TextDecoder();
     let buffer = '';
     const handle = event => {
-      if (event.type === 'start') markRunning(event.key);
+      if (event.type === 'start') { markRunning(event.key); busyLabel = PROGRESS[event.key] || ''; refreshButton(); }
       if (event.type === 'step') updateStep(event.step);
       if (event.type === 'result') {
         finished = true;
@@ -374,7 +379,7 @@ async function analyze() {
 function showFailure(event) {
   finishProcess(event.trace, true);
   const failed = event.trace ? event.trace.steps.find(step => step.status === 'failed') : null;
-  $('failure-text').textContent = failed
+  $('failure-text').textContent = failed && DEV
     ? `'${failed.name}' 단계에서 멈췄습니다. 입력한 문장은 그대로 남아 있어요.`
     : `${event.message} 입력한 문장은 그대로 남아 있어요.`;
   $('failure').hidden = false;
