@@ -90,7 +90,7 @@ SQLite 테이블은 넷입니다. `learner`(수준, 모국어), `attempt`(쓴 �
 
 ### `tests/`와 `evaluate.py`
 
-`tests/fakes.py`의 `FakeModel`은 `GeminiClient` 자리에 들어가 정해 둔 답을 돌려줍니다. 그래서 `Analyzer`, `Generator`, 파이프라인, API의 실제 코드가 API 비용 없이 검사됩니다. `evaluate.py`는 실제 Gemini로 46문장을 실행해 탐지, 오탐, 범주, 검색, 저장을 따로 잽니다.
+`tests/fakes.py`의 `FakeModel`은 `GeminiClient` 자리에 들어가 정해 둔 답을 돌려줍니다. 그래서 `Analyzer`, `Generator`, 파이프라인, API의 실제 코드가 API 비용 없이 검사됩니다. `evaluate.py`는 실제 Gemini로 53문장을 실행해 탐지, 오탐, 범주, 검색, 저장을 따로 잽니다.
 
 ## 4. 블로그 챕터와 코드
 
@@ -110,6 +110,6 @@ SQLite 테이블은 넷입니다. `learner`(수준, 모국어), `attempt`(쓴 �
 ## 5. 알아 둘 한계
 
 - 도구 호출은 Gemini의 네이티브 function calling이 아니라 구조화 출력의 `tool_calls` 필드로 받습니다. 저장 결과가 답변 생성에 필요하지 않아 모델 호출을 한 번 줄이는 쪽을 택했습니다(7장 7.14의 "결과를 다시 Context에 전달"과 다른 점). 이유는 [docs/DECISIONS.md](docs/DECISIONS.md)에 있습니다.
-- `EVIDENCE_MIN_SCORE` 0.75는 평가 46문장으로 정했지만 정답 근거 최저점(0.762)과의 여유가 작습니다. 자료를 늘리면 다시 보정해야 합니다.
+- `EVIDENCE_MIN_SCORE` 0.74는 평가 53문장으로 정했지만 정답 근거 최저점(0.745)과의 여유가 작습니다. 자료를 늘리면 다시 보정해야 합니다.
 - 문법 자료는 검수 전입니다.
 - 인증이 없습니다. 학습자 ID를 아는 사람은 그 기록을 볼 수 있습니다.
